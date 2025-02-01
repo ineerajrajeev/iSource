@@ -439,3 +439,26 @@ def chatbot():
     except Exception as e:
         print(f"Error in chatbot API: {e}")
         return jsonify({"error": "An error occurred while processing the message"}), 500
+
+@QA_bpt.route('/api/feedback', methods=['POST'])
+def feedback():
+    """
+    Feedback endpoint for chatbot responses.
+    """
+    try:
+        data = request.get_json()
+        print(data)
+        response = data.get('response')
+        feedback = data.get('feedback')
+
+        if not response or not feedback:
+            return jsonify({"error": "Missing response or feedback"}), 400
+
+        # Process the feedback (e.g., update the model, etc.)
+        print(f"Feedback received for response: {response}, feedback: {feedback}")
+
+        return jsonify({"message": "Feedback received successfully"}), 200
+
+    except Exception as e:
+        print(f"Error in feedback API: {e}")
+        return jsonify({"error": "An error occurred while processing the feedback"}), 500

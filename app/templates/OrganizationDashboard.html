@@ -1,0 +1,585 @@
+{% extends "layout.html" %}
+
+{% block style %}
+  <style>
+    .registercontainer {
+      padding-top: 50px; /* Margin from top */
+    }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">Organisations Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">Total Users</h3>
+        <img
+          src="{{ url_for('static', filename='img/users.png') }}"
+          alt="Total Users"
+          class="h-12 w-12 inline-block align-middle"
+        />
+      </div>
+      <p class="text-3xl font-bold">{{content.total_users}}</p>
+      <p class="text-sm text-gray-500 mt-2">Total Users in Organisation</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">Questions</h3>
+        <img
+          src="{{ url_for('static', filename='img/ask.png') }}"
+          alt="Questions"
+          class="h-11 w-11 inline-block align-middle"
+        />
+      </div>
+      <p class="text-3xl font-bold">{{content.total_questions}}</p>
+      <p class="text-sm text-gray-500 mt-2">Total Questions Asked</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">Answers</h3>
+        <img
+          src="{{ url_for('static', filename='img/answers.png') }}"
+          alt="Answers"
+          class="h-11 w-11 inline-block align-middle"
+        />
+      </div>
+      <p class="text-3xl font-bold">{{content.total_answers}}</p>
+      <p class="text-sm text-gray-500 mt-2">Total Answers Given</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">Invited Users</h3>
+        <img
+          src="{{ url_for('static', filename='img/reported.png') }}"
+          alt="Reported Content"
+          class="h-11 w-11 inline-block align-middle"
+        />
+      </div>
+      <p class="text-3xl font-bold">{{total_invites}}</p>
+      <p class="text-sm text-gray-500 mt-2">Total Invited Users</p>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <!-- Activity Chart -->
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex justify-between mb-5">
+              <div>
+                  <h5 class="leading-none text-3xl font-bold text-gray-900 pb-2">Activity</h5>
+                  <p class="text-base font-normal text-gray-500">Questions and Answers over time</p>
+              </div>
+          </div>
+          <div id="activity-chart"></div>
+      </div>
+
+      <!-- Tags Chart -->
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex justify-between mb-5">
+              <div>
+                  <h5 class="leading-none text-3xl font-bold text-gray-900 pb-2">Tags</h5>
+                  <p class="text-base font-normal text-gray-500">Most used tags</p>
+              </div>
+          </div>
+          <div id="tags-chart"></div>
+      </div>
+  </div>
+
+
+  <div class="grid grid-cols-1 lg:grid-cols-1 gap-8 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Invited Users</h2>
+            <a href="{{url_for('organization.userManager')}}" id="viewall" class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5" type="button">
+                View All
+            </a>
+          </div>
+          
+          <div class="shadow-md">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            id
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Name
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Position
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invite in invites %}
+                      {% if invite.registered == False %}
+                      <tr class="bg-white border-b hover:bg-gray-50">
+                          <td class="w-4 p-4">
+                              <div class="flex items-center">
+                                  <p>{{ loop.index0+1 }}</p>
+                              </div>
+                          </td>
+                          <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
+                              <div class="ps-3">
+                                  <div class="text-base font-semibold">{{ invite.email }}</div>
+                              </div>  
+                          </th>
+                          <td class="px-6 py-4">
+                              {{ invite.role }}
+                          </td>
+                          <td class="px-6 py-4">
+                              <div class="flex items-center">
+                                  {% if invite.registered == True %} 
+                                  <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>Registered 
+                                  {% else %}
+                                  <div class="h-2.5 w-2.5 rounded-full bg-red-500 ms-4 me-2"></div>Invited
+                                  {% endif %}
+                              </div>
+                          </td>
+                          <td class="space-x-4">
+                              <a href="#" type="button" data-modal-target="editUserModal" data-modal-show="editUserModal" class="font-medium text-blue-600 hover:underline"
+                              data-id="{{ invite.inviteid }}"
+                              data-orgid="{{ invite.orgid }}"
+                              data-email="{{ invite.email }}"
+                              data-role="{{ invite.role }}"
+                              data-code="{{ invite.code }}"
+                              data-registered="{{ invite.registered }}"
+                              data-email-old="{{ invite.email }}"
+                              >Edit user</a>
+                              <span class="text-gray-500">|</span>
+                              <a href="#" type="button" class="font-medium text-red-600 hover:underline delete-user"
+                                  data-inviteid="{{ invite.inviteid }}"
+                                  data-email="{{ invite.email }}"
+                                  data-registered="{{ invite.registered }}"
+                                  >Delete user</a>
+                          </td>
+                      </tr>
+                      {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-1 gap-8 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Registered Users</h2>
+            <a href="{{url_for('organization.userManager')}}" id="viewall" class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5" type="button">
+                View All
+            </a>
+          </div>
+          
+        <div class="shadow-md">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="p-4">
+                            id
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Name
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Position
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invite in invites %}
+                    {% if invite.registered == True %}
+                    <tr class="bg-white border-b">
+                        <td class="w-4 p-4">
+                            <div class="flex items-center">
+                                <p>{{ loop.index0+1 }}</p>
+                            </div>
+                        </td>
+                        <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
+                            <div class="ps-3">
+                                <div class="text-base font-semibold">{{ invite.email }}</div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
+                            {{ invite.role }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                {% if invite.registered == True %} 
+                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>Registered 
+                                {% else %}
+                                <div class="h-2.5 w-2.5 rounded-full bg-red-500 ms-4 me-2"></div>Invited
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="space-x-4">
+                          <a href="#" type="button" data-modal-target="editUserModal" data-modal-show="editUserModal" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                          data-id="{{ invite.inviteid }}"
+                          data-orgid="{{ invite.orgid }}"
+                          data-email="{{ invite.email }}"
+                          data-role="{{ invite.role }}"
+                          data-code="{{ invite.code }}"
+                          data-registered="{{ invite.registered }}"
+                          data-email-old="{{ invite.email }}"
+                          >Edit user</a>
+                          <span class="text-gray-500">|</span>
+                          <a href="#" type="button" class="font-medium text-red-600 hover:underline delete-user"
+                              data-inviteid="{{ invite.inviteid }}"
+                              data-email="{{ invite.email }}"
+                              data-registered="{{ invite.registered }}"
+                              >Delete user</a>
+                      </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-bold mb-6">Recent Questions</h2>
+      <div class="space-y-4">
+        {% for question in questions %}
+        <div class="border-b pb-4 last:border-0">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold">{{ question.question_title }}</h3>
+          </div>
+          <p class="text-sm text-gray-500">Asked by {{ question.email }} {{ question.relative_time }} ago</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col h-screen p-12 bg-white">
+    <!-- Drop Area Container -->
+    <div class="flex flex-col justify-start items-center h-1/2 bg-white rounded-lg shadow-lg relative" id="drop-area">
+      <!-- Header Section -->
+      <div id="header" class="flex justify-between items-center w-full px-6 py-4 bg-gray-100 text-gray-900 font-bold rounded-t-lg border-b border-gray-300">
+        <span id="header-title" class="text-lg">Upload Files</span>
+        <div>
+          <form id="upload-form" class="flex flex-col items-center w-full h-full justify-center" method="POST" action="/upload" enctype="multipart/form-data">
+            <input id="file-input" type="file" name="file" class="hidden" accept=".pdf" />
+            <div id="file-info" class="hidden text-gray-700 text-center">
+              <span class="font-semibold">Selected file: </span>
+              <span id="file-name" class="text-gray-900"></span>
+              <button 
+                type="submit" 
+                id="submit-button" 
+                class="mt-4 px-6 py-2 bg-gray-100 text-gray-900 font-medium rounded-lg hover:bg-gray-200 transition hidden"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+        <button 
+          id="trigger-button" 
+          class="px-4 py-2 bg-gray-100 text-gray-900 font-semibold rounded-lg shadow hover:bg-gray-200 transition"
+          onclick="triggerFileInput()"
+        >
+          Upload
+        </button>
+      </div>
+
+      <!-- PDF List Section -->
+      <div id="pdf-list" class="grid grid-cols-3 gap-6 p-6 overflow-y-auto w-full h-full bg-white rounded-b-lg">
+        {% if pdf_files|length > 0 %}
+          {% for pdf in pdf_files %}
+          <div class="flex flex-col items-center bg-gray-50 rounded-lg shadow p-4 hover:shadow-md transition">
+            <div class="w-full h-24 bg-gray-100 flex justify-center items-center text-gray-500 rounded-md">
+              <span class="font-medium text-lg">PDF</span>
+            </div>
+            <span class="truncate mt-3 text-gray-800 text-sm font-medium">{{ pdf.docname }}</span>
+            <a href="{{ pdf.docpath }}" target="_blank" class="text-blue-600 hover:underline mt-2 text-sm">View</a>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="flex items-center justify-center w-full h-full">
+          <p class="text-gray-500 font-medium text-lg text-center">No files are available.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+  <!-- Edit user modal -->
+  <div id="editUserModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative w-full max-w-2xl max-h-full">
+          <!-- Modal content -->
+          <form class="relative bg-white rounded-lg shadow">
+              <!-- Modal header -->
+              <div class="flex items-start justify-between p-4 border-b rounded-t">
+                  <h3 class="text-xl font-semibold text-gray-900">
+                      Edit user
+                  </h3>
+                  <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="editUserModal">
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+              </div>
+              <!-- Modal body -->
+              <div class="p-6 space-y-6">
+                  <div class="grid grid-cols-6 gap-6">
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editemail" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                          <input type="mail" name="editemail" id="editemail" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="example@company.com" required="">
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editorgid" class="block mb-2 text-sm font-medium text-gray-900">Organisation Id</label>
+                          <input type="text" name="editorgid" id="editorgid" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="Development" required="">
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editrole" class="block mb-2 text-sm font-medium text-gray-900">Role</label>
+                          <input type="text" name="editrole" id="editrole" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="123456" required="">
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editcode" class="block mb-2 text-sm font-medium text-gray-900">Code</label>
+                          <input type="text" name="editcode" id="editcode" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="React Developer, Designer" required="" disabled>
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editnew-password" class="block mb-2 text-sm font-medium text-gray-900">New Password</label>
+                          <input type="password" name="editnew-password" id="editnew-password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="••••••••" >
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="editconfirm-password" class="block mb-2 text-sm font-medium text-gray-900">Confirm Password</label>
+                          <input type="password" name="editconfirm-password" id="editconfirm-password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="••••••••">
+                      </div>
+                      
+                  </div>
+              </div>
+              <!-- Modal footer -->
+              <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600">
+                  <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save all</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <div id="inviteUserModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative w-full max-w-2xl max-h-full">
+          <!-- Modal content -->
+          <form class="relative bg-white rounded-lg shadow" action="{{url_for('organization.inviteUser')}}" method="POST">
+              <!-- Modal header -->
+              <div class="flex items-start justify-between p-4 border-b rounded-t">
+                  <h3 class="text-xl font-semibold text-gray-900">
+                      Edit user
+                  </h3>
+                  <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="inviteUserModal">
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+              </div>
+              <!-- Modal body -->
+              <div class="p-6 space-y-6">
+                  <div class="grid grid-cols-6 gap-6">
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                          <input type="email" name="email" id="email" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="example@company.com" required="">
+                      </div>
+                      <div class="col-span-6 sm:col-span-3">
+                          <label for="role" class="block mb-2 text-sm font-medium text-gray-900">Role</label>
+                              <select name="role" id="role" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required>
+                              <option value="" disabled selected>Select your role</option>
+                              <option value="user">User</option>
+                              <option value="moderator">Moderator</option>
+                          </select>
+                      </div>
+                  </div>
+              </div>
+              <!-- Modal footer -->
+              <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b">
+                  <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Invite</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+</div>
+</div>
+    <script>
+        // Activity Chart
+        const activityOptions = {
+            chart: {
+                height: 350,
+                type: 'area',
+                toolbar: {
+                    show: false,
+                }
+            },
+            series: [{
+                name: 'Questions',
+                data: {{ data.time_series_data.questions | tojson }}
+            }, {
+                name: 'Answers',
+                data: {{ data.time_series_data.answers | tojson }}
+            }],
+            xaxis: {
+                categories: {{ data.time_series_data.dates | tojson }},
+                labels: {
+                    style: {
+                        colors: '#64748b'
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ['#3b82f6', '#10b981'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    opacityFrom: 0.6,
+                    opacityTo: 0.1,
+                }
+            },
+            theme: {
+                mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+            }
+        };
+
+        const activityChart = new ApexCharts(document.querySelector("#activity-chart"), activityOptions);
+        activityChart.render();
+
+        // Tags Chart
+        const tagsOptions = {
+            chart: {
+                height: 350,
+                type: 'bar',
+                toolbar: {
+                    show: false,
+                }
+            },
+            series: [{
+                name: 'Questions',
+                data: {{ data.trending_tags | map(attribute='count') | list | tojson }}
+            }],
+            xaxis: {
+                categories: {{ data.trending_tags | map(attribute='name') | list | tojson }},
+                labels: {
+                    style: {
+                        colors: '#64748b'
+                    }
+                }
+            },
+            colors: ['#3b82f6'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            theme: {
+                mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+            }
+        };
+
+        const tagsChart = new ApexCharts(document.querySelector("#tags-chart"), tagsOptions);
+        tagsChart.render();
+
+        // Dark mode toggle listener
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+  const dropArea = document.getElementById('drop-area');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const submitButton = document.getElementById('submit-button');
+  const triggerButton = document.getElementById('trigger-button');
+  const headerTitle = document.getElementById('header-title');
+
+  // Trigger file input dialog
+  function triggerFileInput() {
+    fileInput.click();
+  }
+
+  // Highlight the drop area on drag events
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+    dropArea.addEventListener(event, (e) => e.preventDefault());
+  });
+
+  ['dragenter', 'dragover'].forEach(event => {
+    dropArea.addEventListener(event, () => dropArea.classList.add('bg-gray-100'));
+  });
+
+  ['dragleave', 'drop'].forEach(event => {
+    dropArea.addEventListener(event, () => dropArea.classList.remove('bg-gray-100'));
+  });
+
+  // Handle drop event
+  dropArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = e.dataTransfer.files; // Transfer files to the input
+      handleFileSelection(fileInput.files[0]);
+    }
+  });
+
+  // Handle file input change
+  fileInput.addEventListener('change', () => {
+    const files = fileInput.files;
+    if (files.length > 0) {
+      handleFileSelection(files[0]);
+    }
+  });
+
+  // Handle file selection
+  function handleFileSelection(file) {
+    if (file.type === 'application/pdf') {
+      fileInfo.classList.remove('hidden'); // Show file info
+      submitButton.classList.remove('hidden'); // Show submit button
+      triggerButton.classList.add('hidden'); // Hide upload button
+      headerTitle.textContent = `File Selected: ${file.name}`; // Update header title
+    } else {
+      alert('Only PDF files are allowed!');
+      fileInput.value = ''; // Clear invalid selection
+      resetForm();
+    }
+  }
+
+  // Reset form to initial state
+  function resetForm() {
+    fileInfo.classList.add('hidden');
+    submitButton.classList.add('hidden');
+    triggerButton.classList.remove('hidden');
+    headerTitle.textContent = 'Upload Files';
+  }
+  </script>
+{% endblock %}
+
+

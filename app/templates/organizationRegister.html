@@ -1,0 +1,205 @@
+{% extends "layout.html" %} {% block title %} Create Organisation Account {%
+endblock %} {% block style %}
+<style>
+  .registercontainer {
+    padding-top: 50px; /* Margin from top */
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="registercontainer max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold">Create Organisation Account</h1>
+      <p class="text-gray-600 mt-2">Join our community and get started</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <form
+        action="{{ url_for('organization.OrganizationRegister') }}"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <!-- Line 1: Organisation Name and Logo -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Organisation Name</label
+            >
+            <input
+              type="text"
+              name="orgname"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="XYZ Organisation"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 pb-1"
+              >Organisation Logo</label
+            >
+            <input
+              aria-describedby="user_avatar_help"
+              id="user_avatar"
+              type="file"
+              name="orglogo"
+              class="w-full pl-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              accept="image/*"
+            />
+          </div>
+        </div>
+
+        <!-- Line 2: Email and Phone -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              name="orgemail"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="example@organisation.com"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Phone Number</label
+            >
+            <input
+              type="text"
+              name="orgphone"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="+123456789"
+            />
+          </div>
+        </div>
+
+        <!-- Line 3: Password and Confirm Password -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Password</label
+            >
+            <input
+              type="password"
+              name="orgpassword"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Confirm Password</label
+            >
+            <input
+              type="password"
+              name="confirmpassword"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Line 4: Organisation Type and Website -->
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Organisation Type</label
+            >
+
+            <select
+              id="orgtype"
+              name="orgtype"
+              class="w-full p-3 border border-gray-300 rounded-md text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-left"
+            >
+              <option value="Profit">Profit Organizations</option>
+              <option value="Non_Profit">Non-Profit Organizations</option>
+              <option value="Gov">Governmental Organizations</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Website</label
+            >
+            <input
+              type="url"
+              name="orgwebsite"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="https://example.com"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Line 5: Address -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Organisation Address</label
+            >
+            <input
+              type="text"
+              name="orgaddress"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="1234 Example Street, City, Country"
+            />
+          </div>
+
+          <!-- Line 6: Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Organisation Description</label
+            >
+            <input
+              type="text"
+              name="orgdesc"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Tell us about your organisation..."
+            />
+          </div>
+        </div>
+
+        <div class="mb-6 flex items-center">
+          <input
+            type="checkbox"
+            name="agree"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label class="ml-2 block text-sm text-gray-700">
+            I agree to the
+            <a href="#" class="text-blue-600 hover:text-blue-500"
+              >Terms of Service</a
+            >
+            and
+            <a href="#" class="text-blue-600 hover:text-blue-500"
+              >Privacy Policy</a
+            >
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700"
+        >
+          Create Organisation Account
+        </button>
+      </form>
+    </div>
+    <p class="text-center mt-6 mb-6 text-gray-600">
+      Already have an account?
+      <a
+        href="{{ url_for('user.login') }}"
+        class="text-blue-600 hover:text-blue-500"
+        >Sign in</a
+      >
+    </p>
+  </div>
+</div>
+{% endblock %}

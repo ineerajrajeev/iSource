@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %} {% endblock %}</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Flowbite CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+
+    <!-- Custom styles (optional) -->
+    {% block style %} {% endblock %}
+  </head>
+  <body class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
+    <!-- Include Navbar -->
+    {% include 'UserNavbar.html' %}
+
+    <!-- Flash Message Handling -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          {% if message[1] == "success" %}
+            <div
+              class="bg-green-100 border border-green-100 text-green-700 px-4 py-4 rounded relative alert"
+              role="alert"
+            >
+              <span class="block sm:inline">{{ message[0] }}</span>
+              <button
+                type="button"
+                class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                data-dismiss="alert"
+                aria-label="Close"
+                onclick="this.parentNode.remove()"
+              >
+                <svg
+                  class="fill-current h-6 w-6 text-green-500"
+                  role="button"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <title>Close</title>
+                  <path
+                    d="M14.348 5.652a.5.5 0 0 1 0 .707L10.06 10l4.288 4.646a.5.5 0 0 1-.708.708L9.353 10l-4.647 4.354a.5.5 0 1 1-.708-.707L8.646 10 4 5.348a.5.5 0 1 1 .708-.708L10 9.354l4.354-4.647a.5.5 0 0 1 .708 0z"
+                  />
+                </svg>
+              </button>
+            </div>
+          {% else %}
+            <div
+              class="bg-red-100 border border-red-100 text-red-700 px-4 py-4 rounded relative alert"
+              role="alert"
+            >
+              <span class="block sm:inline">{{ message }}</span>
+              <button
+                type="button"
+                class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                data-dismiss="alert"
+                aria-label="Close"
+                onclick="this.parentNode.remove()"
+              >
+                <svg
+                  class="fill-current h-6 w-6 text-red-500"
+                  role="button"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <title>Close</title>
+                  <path
+                    d="M14.348 5.652a.5.5 0 0 1 0 .707L10.06 10l4.288 4.646a.5.5 0 0 1-.708.708L9.353 10l-4.647 4.354a.5.5 0 1 1-.708-.707L8.646 10 4 5.348a.5.5 0 1 1 .708-.708L10 9.354l4.354-4.647a.5.5 0 0 1 .708 0z"
+                  />
+                </svg>
+              </button>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Main Content Block -->
+    {% block content %} {% endblock %}
+
+    <!-- Floating Chat Button -->
+    <button
+      id="chatbot-toggle"
+      class="fixed bottom-6 right-6 flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105"
+    >
+      <!-- Chat icon -->
+      <svg
+        class="w-5 h-5 mr-2"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-9 5v5m0-5c-4.97 0-9-1.79-9-4V5a2 2 0 012-2h14a2 2 0 012 2v4c0 2.21-4.03 4-9 4z"
+        ></path>
+      </svg>
+      Chat
+    </button>
+
+    <!-- Chatbot Overlay -->
+    <div
+      id="chatbot-overlay"
+      class="fixed top-4 right-4 h-[90%] w-[0%] bg-white shadow-xl rounded-lg transition-all duration-300 overflow-hidden hidden flex flex-col"
+      style="max-width: 400px;"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between bg-blue-600 text-white py-3 px-4">
+        <h2 class="text-lg font-bold">Chatbot</h2>
+        <button
+          onclick="toggleChatbot()"
+          class="text-white hover:text-gray-300 text-2xl leading-none font-semibold"
+        >
+          &times;
+        </button>
+      </div>
+
+      <!-- Chat Content -->
+      <div
+        id="chatbot-content"
+        class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50"
+      >
+        <!-- Messages will be appended here -->
+      </div>
+
+      <!-- Typing Indicator (hidden by default) -->
+      <div
+        id="typing-indicator"
+        class="flex items-center space-x-2 p-4 hidden"
+      >
+        <div class="w-4 h-4 bg-blue-200 rounded-full animate-bounce"></div>
+        <div class="w-4 h-4 bg-blue-300 rounded-full animate-bounce animation-delay-200"></div>
+        <div class="w-4 h-4 bg-blue-400 rounded-full animate-bounce animation-delay-400"></div>
+        <span class="text-sm text-gray-500">Bot is typing...</span>
+      </div>
+
+      <!-- Input Field & Send Button -->
+      <div class="p-4 border-t border-gray-200">
+        <div class="flex space-x-2">
+          <input
+            type="text"
+            id="chat-input"
+            placeholder="Type your message..."
+            class="flex-1 border rounded p-2 focus:outline-none"
+            onkeydown="handleKeyPress(event)"
+          />
+          <button
+            onclick="sendMessage()"
+            class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    {% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+        loadConversation();
+      });
+
+      // Toggles the chatbot panel open/closed with a width transition
+      function toggleChatbot() {
+        const overlay = document.getElementById("chatbot-overlay");
+        const isHidden = overlay.classList.contains("hidden");
+        if (isHidden) {
+          overlay.classList.remove("hidden");
+          overlay.style.width = "100%";  // Force a width so transitions apply
+          overlay.classList.add("md:w-[80%]", "lg:w-[50%]");
+          // For larger screens we limit the width a bit.
+        } else {
+          overlay.classList.remove("md:w-[80%]", "lg:w-[50%]");
+          overlay.style.width = "0";
+          // Use a small timeout to properly hide once the width transition completes
+          setTimeout(() => {
+            overlay.classList.add("hidden");
+          }, 300);
+        }
+      }
+
+      // Handle Enter key for sending messages
+      function handleKeyPress(event) {
+        if (event.key === "Enter") {
+          // Optionally prevent newline
+          event.preventDefault();
+          sendMessage();
+        }
+      }
+
+      // Show the bot "typing" indicator
+      function showTypingIndicator() {
+        const indicator = document.getElementById("typing-indicator");
+        indicator.classList.remove("hidden");
+      }
+
+      // Hide the bot "typing" indicator
+      function hideTypingIndicator() {
+        const indicator = document.getElementById("typing-indicator");
+        indicator.classList.add("hidden");
+      }
+
+      // Send user message to server and handle the response
+      function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+        if (message !== "") {
+          // Display user message
+          appendMessage("You", message);
+          saveMessage("You", message);
+
+          // Clear input
+          input.value = "";
+
+          // Show typing indicator before fetching
+          showTypingIndicator();
+
+          // Prepare full conversation for context
+          const conversation = getConversation();
+
+          fetch("/api/chatbot", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ conversation }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              hideTypingIndicator();
+
+              if (data.reply) {
+                appendMessage("Bot", data.reply);
+                saveMessage("Bot", data.reply);
+              } else if (data.error) {
+                appendMessage("Bot", `Error: ${data.error}`);
+                saveMessage("Bot", `Error: ${data.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              hideTypingIndicator();
+              appendMessage("Bot", "An error occurred.");
+              saveMessage("Bot", "An error occurred.");
+            });
+        }
+      }
+
+      // Create and append message bubbles
+      function appendMessage(sender, message) {
+        const content = document.getElementById("chatbot-content");
+
+        // Container for the entire message row
+        const messageContainer = document.createElement("div");
+
+        // Decide alignment/style based on sender
+        if (sender === "You") {
+          messageContainer.classList.add("flex", "justify-end");
+          messageContainer.innerHTML = `
+            <div class="max-w-[70%] bg-blue-500 text-white rounded-lg p-3 mb-2 shadow-md">
+              <p class="text-sm font-semibold mb-1">You</p>
+              <p class="text-sm">${message}</p>
+            </div>
+          `;
+        } else {
+          messageContainer.classList.add("flex", "justify-start");
+          messageContainer.innerHTML = `
+            <div class="max-w-[70%] bg-gray-200 text-gray-700 rounded-lg p-3 mb-2 shadow-md">
+              <p class="text-sm font-semibold mb-1">Bot</p>
+              <p class="text-sm">${message}</p>
+            </div>
+          `;
+        }
+
+        content.appendChild(messageContainer);
+        // Scroll to bottom
+        content.scrollTop = content.scrollHeight;
+      }
+
+      // Save a message to local storage
+      function saveMessage(sender, message) {
+        let conversation = getConversation();
+        conversation.push({ sender, message });
+        localStorage.setItem("conversation", JSON.stringify(conversation));
+      }
+
+      // Retrieve the entire conversation from local storage
+      function getConversation() {
+        return JSON.parse(localStorage.getItem("conversation")) || [];
+      }
+
+      // Load and display any stored conversation on page load
+      function loadConversation() {
+        const conversation = getConversation();
+        conversation.forEach((msg) => appendMessage(msg.sender, msg.message));
+      }
+
+      // Toggle chatbot when the floating button is clicked
+      document
+        .getElementById("chatbot-toggle")
+        .addEventListener("click", toggleChatbot);
+    </script>
+    {% endblock %}
+  </body>
+</html>

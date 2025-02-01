@@ -1,0 +1,581 @@
+{% extends "layout.html" %} {% block title %} User Manager {% endblock %} {%
+block style %}
+<style>
+  .UserManagercontainer {
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+  /* Center modals */
+  .modal-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="UserManagercontainer relative overflow-x-auto sm:rounded-lg mx-12">
+  <div class="">
+    <div
+      class="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4"
+    >
+      <div>
+        <button
+          id="inviteuser"
+          data-modal-target="inviteUserModal"
+          data-modal-show="inviteUserModal"
+          class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5"
+          type="button"
+        >
+          Invite User
+        </button>
+      </div>
+      <label for="table-search" class="sr-only">Search</label>
+      <div class="relative">
+        <div
+          class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
+        >
+          <svg
+            class="w-4 h-4 text-gray-500"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+            />
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="table-search-users"
+          class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Search for users"
+        />
+      </div>
+    </div>
+    <div class="shadow-md">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+          <tr>
+            <th scope="col" class="p-4">
+              <!-- <div class="flex items-center">
+                        <input id="checkbox-all-search" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <label for="checkbox-all-search" class="sr-only">checkbox</label>
+                    </div> -->
+              id
+            </th>
+            <th scope="col" class="px-6 py-3">Name</th>
+            <th scope="col" class="px-6 py-3">Position</th>
+            <th scope="col" class="px-6 py-3">Status</th>
+            <th scope="col" class="px-6 py-3">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invite in invites %}
+          <tr class="bg-white border-b hover:bg-gray-50">
+            <td class="w-4 p-4">
+              <div class="flex items-center">
+                <p>{{ loop.index0+1 }}</p>
+              </div>
+            </td>
+            <th
+              scope="row"
+              class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+            >
+              <div class="ps-3">
+                <div class="text-base font-semibold">{{ invite.email }}</div>
+              </div>
+            </th>
+            <td class="px-6 py-4">{{ invite.role }}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                {% if invite.registered == True %}
+                <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>
+                Registered {% else %}
+                <div
+                  class="h-2.5 w-2.5 rounded-full bg-red-500 ms-4 me-2"
+                ></div>
+                Invited {% endif %}
+              </div>
+            </td>
+            <td class="space-x-4">
+              <a
+                href="#"
+                type="button"
+                data-modal-target="editUserModal"
+                data-modal-show="editUserModal"
+                class="font-medium text-blue-600 hover:underline"
+                data-id="{{ invite.inviteid }}"
+                data-orgid="{{ invite.orgid }}"
+                data-email="{{ invite.email }}"
+                data-role="{{ invite.role }}"
+                data-code="{{ invite.code }}"
+                data-registered="{{ invite.registered }}"
+                data-email-old="{{ invite.email }}"
+                >Edit user</a
+              >
+              <span class="text-gray-500">|</span>
+              <a
+                href="#"
+                type="button"
+                class="font-medium text-red-600 hover:underline delete-user"
+                data-inviteid="{{ invite.inviteid }}"
+                data-email="{{ invite.email }}"
+                data-registered="{{ invite.registered }}"
+                >Delete user</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Edit user modal -->
+    <div
+      id="editUserModal"
+      tabindex="-1"
+      aria-hidden="true"
+      class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    >
+      <div class="relative w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <form class="relative bg-white rounded-lg shadow">
+          <!-- Modal header -->
+          <div class="flex items-start justify-between p-4 border-b rounded-t">
+            <h3 class="text-xl font-semibold text-gray-900">Edit user</h3>
+            <button
+              type="button"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+              data-modal-hide="editUserModal"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <!-- Modal body -->
+          <div class="p-6 space-y-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editemail"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Email</label
+                >
+                <input
+                  type="mail"
+                  name="editemail"
+                  id="editemail"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="example@company.com"
+                  required=""
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editorgid"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Organisation Id</label
+                >
+                <input
+                  type="text"
+                  name="editorgid"
+                  id="editorgid"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="Development"
+                  required=""
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editrole"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Role</label
+                >
+                <input
+                  type="text"
+                  name="editrole"
+                  id="editrole"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="123456"
+                  required=""
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editcode"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Code</label
+                >
+                <input
+                  type="text"
+                  name="editcode"
+                  id="editcode"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="React Developer, Designer"
+                  required=""
+                  disabled
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editnew-password"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >New Password</label
+                >
+                <input
+                  type="password"
+                  name="editnew-password"
+                  id="editnew-password"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="••••••••"
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="editconfirm-password"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Confirm Password</label
+                >
+                <input
+                  type="password"
+                  name="editconfirm-password"
+                  id="editconfirm-password"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- Modal footer -->
+          <div
+            class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b"
+          >
+            <button
+              type="submit"
+              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            >
+              Save all
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- invite user -->
+    <div
+      id="inviteUserModal"
+      tabindex="-1"
+      aria-hidden="true"
+      class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    >
+      <div class="relative w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <form
+          class="relative bg-white rounded-lg shadow"
+          action="{{url_for('organization.inviteUser')}}"
+          method="POST"
+        >
+          <!-- Modal header -->
+          <div class="flex items-start justify-between p-4 border-b rounded-t">
+            <h3 class="text-xl font-semibold text-gray-900">Edit user</h3>
+            <button
+              type="button"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+              data-modal-hide="inviteUserModal"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <!-- Modal body -->
+          <div class="p-6 space-y-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="email"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  placeholder="example@company.com"
+                  required=""
+                />
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label
+                  for="role"
+                  class="block mb-2 text-sm font-medium text-gray-900"
+                  >Role</label
+                >
+                <select
+                  name="role"
+                  id="role"
+                  class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+                  required
+                >
+                  <option value="" disabled selected>Select your role</option>
+                  <option value="user">User</option>
+                  <option value="moderator">Moderator</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Modal footer -->
+          <div
+            class="flex items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b :border-gray-600"
+          >
+            <button
+              type="submit"
+              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            >
+              Invite
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  document
+    .getElementById("table-search-users")
+    .addEventListener("input", function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+
+      rows.forEach((row) => {
+        const emailCell = row.querySelector("th .text-base");
+        if (emailCell) {
+          const email = emailCell.textContent.toLowerCase();
+          row.style.display = email.includes(filter) ? "" : "none";
+        }
+      });
+    });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Modals functionality
+    function setupModal(modalTriggerSelector, modalId, modalHideSelector) {
+      const editButtons = document.querySelectorAll(modalTriggerSelector);
+      const modal = document.getElementById(modalId);
+      const closeModalButtons = modal.querySelectorAll(modalHideSelector);
+
+      // Show modal functionality
+      editButtons.forEach((button) => {
+        button.addEventListener("click", function (e) {
+          e.preventDefault();
+          modal.classList.remove("hidden");
+          modal.classList.add("modal-center");
+          modal.setAttribute("aria-hidden", "false");
+
+          // Populate modal with data attributes for edit modal
+          if (modalId === "editUserModal") {
+            const emailInput = modal.querySelector("#editemail");
+            const orgidInput = modal.querySelector("#editorgid");
+            const roleInput = modal.querySelector("#editrole");
+            const codeInput = modal.querySelector("#editcode");
+
+            emailInput.value = this.getAttribute("data-email") || "";
+            orgidInput.value = this.getAttribute("data-orgid") || "";
+            roleInput.value = this.getAttribute("data-role") || "";
+            codeInput.value = this.getAttribute("data-code") || "";
+
+            // Set a custom attribute to store the original email
+            emailInput.setAttribute(
+              "data-original-email",
+              this.getAttribute("data-email") || ""
+            );
+          }
+        });
+      });
+
+      // Close modal functionality
+      closeModalButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          modal.classList.add("hidden");
+          modal.classList.remove("modal-center");
+          modal.setAttribute("aria-hidden", "true");
+        });
+      });
+    }
+
+    // Setup edit user modal
+    setupModal(
+      '[data-modal-show="editUserModal"]',
+      "editUserModal",
+      '[data-modal-hide="editUserModal"]'
+    );
+
+    // Setup invite user modal
+    setupModal(
+      '[data-modal-target="inviteUserModal"]',
+      "inviteUserModal",
+      '[data-modal-hide="inviteUserModal"]'
+    );
+
+    // Edit form submission
+    const editModal = document.getElementById("editUserModal");
+    const editForm = editModal.querySelector("form");
+    const newPasswordInput = document.getElementById("editnew-password");
+    const confirmPasswordInput = document.getElementById(
+      "editconfirm-password"
+    );
+
+    editForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Basic password validation
+      if (
+        newPasswordInput.value &&
+        newPasswordInput.value !== confirmPasswordInput.value
+      ) {
+        alert("Passwords do not match");
+        return;
+      }
+
+      // Get the original email from the input's data attribute
+      const oldEmail = document
+        .getElementById("editemail")
+        .getAttribute("data-original-email");
+      const newEmail = document.getElementById("editemail").value;
+
+      // Find the edit button using the original email
+      const activeEditButton = document.querySelector(
+        '[data-modal-show="editUserModal"][data-email="' + oldEmail + '"]'
+      );
+
+      // Prepare form data
+      const formData = {
+        email: newEmail,
+        orgid: document.getElementById("editorgid").value,
+        role: document.getElementById("editrole").value,
+        code: document.getElementById("editcode").value,
+        new_password: newPasswordInput.value || null,
+        confirm_password: confirmPasswordInput.value || null,
+        registered: activeEditButton
+          ? activeEditButton.getAttribute("data-registered")
+          : null,
+        old_email: oldEmail,
+        id: activeEditButton ? activeEditButton.getAttribute("data-id") : null,
+      };
+
+      // Send data via fetch
+      fetch("/UserManager", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            alert("User updated successfully");
+            editModal.classList.add("hidden");
+            editModal.classList.remove("modal-center");
+            editModal.setAttribute("aria-hidden", "true");
+            location.reload();
+          } else {
+            alert("Error updating user: " + data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred while updating the user");
+        });
+    });
+
+    const deleteButtons = document.querySelectorAll("a.delete-user");
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Get user details from data attributes
+        const inviteid = this.getAttribute("data-inviteid");
+        const userEmail = this.getAttribute("data-email");
+        const registered = this.getAttribute("data-registered");
+
+        // Confirm deletion
+        if (
+          confirm(
+            `Are you sure you want to delete the user with email ${userEmail}?`
+          )
+        ) {
+          // Send delete request
+          fetch("/UserManager", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              inviteid: inviteid,
+              email: userEmail,
+              registered: registered,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("User deleted successfully");
+                location.reload(); // Refresh the page
+              } else {
+                alert("Error deleting user: " + data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("An error occurred while deleting the user");
+            });
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

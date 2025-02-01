@@ -1,0 +1,241 @@
+<!-- templates/admin_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iHelp Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0 dark:bg-gray-800 dark:border-gray-700">
+        <div class="px-3 py-3 lg:px-5 lg:pl-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-xl font-semibold dark:text-white">iHelp Admin</span>
+                </div>
+                <div class="flex items-center">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg">+ New Question</button>
+                    <button class="ml-4 text-gray-600 dark:text-gray-300">Log out</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-16 px-6">
+        <!-- Metric Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <!-- Users Metric Card -->
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4">
+                <div class="flex justify-between">
+                    <div>
+                        <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
+                            {{ data.user_metrics.total_users }}
+                        </h5>
+                        <p class="text-base font-normal text-gray-500 dark:text-gray-400">Total Users</p>
+                    </div>
+                    <div class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500">
+                        +{{ data.user_metrics.new_users_today }}
+                        <svg class="w-3 h-3 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Similar cards for Questions, Answers, AI Answers -->
+            {% for metric in [
+                ('Questions', data.content_metrics.total_questions),
+                ('Answers', data.content_metrics.total_answers),
+                ('AI Answers', data.content_metrics.ai_answers)
+            ] %}
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4">
+                <div class="flex justify-between">
+                    <div>
+                        <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
+                            {{ metric[1] }}
+                        </h5>
+                        <p class="text-base font-normal text-gray-500 dark:text-gray-400">{{ metric[0] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <!-- Activity Chart -->
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+                <div class="flex justify-between mb-5">
+                    <div>
+                        <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">Activity</h5>
+                        <p class="text-base font-normal text-gray-500 dark:text-gray-400">Questions and Answers over time</p>
+                    </div>
+                </div>
+                <div id="activity-chart"></div>
+                <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between mt-5">
+                    <div class="flex justify-between items-center pt-5">
+                        <select id="timeRange" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tags Chart -->
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+                <div class="flex justify-between mb-5">
+                    <div>
+                        <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">Tags</h5>
+                        <p class="text-base font-normal text-gray-500 dark:text-gray-400">Most used tags</p>
+                    </div>
+                </div>
+                <div id="tags-chart"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Top Questions -->
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Top Questions</h3>
+                <div class="flow-root">
+                    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for question in data.top_questions %}
+                        <li class="py-3 sm:py-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                        {{ question.title }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                        {{ question.views }} views • {{ question.answers }} answers
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Moderation Stats -->
+            <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Moderation Overview</h3>
+                <div class="space-y-4">
+                    {% for stat in [
+                        ('Flagged Content', data.moderation_stats.flagged_content, 'red'),
+                        ('Pending Reviews', data.moderation_stats.pending_reviews, 'yellow'),
+                        ('Resolved Today', data.moderation_stats.resolved_today, 'green')
+                    ] %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-900 dark:text-white">{{ stat[0] }}</span>
+                        <span class="bg-{{ stat[2] }}-100 text-{{ stat[2] }}-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                            {{ stat[1] }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
+    <script>
+        // Activity Chart
+        const activityOptions = {
+            chart: {
+                height: 350,
+                type: 'area',
+                toolbar: {
+                    show: false,
+                }
+            },
+            series: [{
+                name: 'Questions',
+                data: {{ data.time_series_data.questions | tojson }}
+            }, {
+                name: 'Answers',
+                data: {{ data.time_series_data.answers | tojson }}
+            }],
+            xaxis: {
+                categories: {{ data.time_series_data.dates | tojson }},
+                labels: {
+                    style: {
+                        colors: '#64748b'
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            colors: ['#3b82f6', '#10b981'],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    opacityFrom: 0.6,
+                    opacityTo: 0.1,
+                }
+            },
+            theme: {
+                mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+            }
+        };
+
+        const activityChart = new ApexCharts(document.querySelector("#activity-chart"), activityOptions);
+        activityChart.render();
+
+        // Tags Chart
+        const tagsOptions = {
+            chart: {
+                height: 350,
+                type: 'bar',
+                toolbar: {
+                    show: false,
+                }
+            },
+            series: [{
+                name: 'Questions',
+                data: {{ data.trending_tags | map(attribute='count') | list | tojson }}
+            }],
+            xaxis: {
+                categories: {{ data.trending_tags | map(attribute='name') | list | tojson }},
+                labels: {
+                    style: {
+                        colors: '#64748b'
+                    }
+                }
+            },
+            colors: ['#3b82f6'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            theme: {
+                mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+            }
+        };
+
+        const tagsChart = new ApexCharts(document.querySelector("#tags-chart"), tagsOptions);
+        tagsChart.render();
+
+        // Dark mode toggle listener
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>

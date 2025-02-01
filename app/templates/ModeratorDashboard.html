@@ -1,0 +1,224 @@
+{% extends "layout.html" %} {% block style %}
+<style>
+  .registercontainer {
+    padding-top: 50px; /* Margin from top */
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Moderator Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Total Users</h3>
+          <img
+            src="{{ url_for('static', filename='img/users.png') }}"
+            alt="Total Users"
+            class="h-12 w-12 inline-block align-middle"
+          />
+        </div>
+        <p class="text-3xl font-bold">{{data_summary.users}}</p>
+        <p class="text-sm text-gray-500 mt-2">Total Users in Organisation</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Questions</h3>
+          <img
+            src="{{ url_for('static', filename='img/ask.png') }}"
+            alt="Questions"
+            class="h-11 w-11 inline-block align-middle"
+          />
+        </div>
+        <p class="text-3xl font-bold">{{data_summary.questions}}</p>
+        <p class="text-sm text-gray-500 mt-2">Total Questions Asked</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Answers</h3>
+          <img
+            src="{{ url_for('static', filename='img/answers.png') }}"
+            alt="Answers"
+            class="h-11 w-11 inline-block align-middle"
+          />
+        </div>
+        <p class="text-3xl font-bold">{{data_summary.answers}}</p>
+        <p class="text-sm text-gray-500 mt-2">Total Answers Given</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Total Invites</h3>
+          <img
+            src="{{ url_for('static', filename='img/reported.png') }}"
+            alt="Reported Content"
+            class="h-11 w-11 inline-block align-middle"
+          />
+        </div>
+        <p class="text-3xl font-bold">{{data_summary.total_invites}}</p>
+        <p class="text-sm text-gray-500 mt-2">Total Invites Sent</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold">Recent Questions Needing Moderation</h2>
+          <a
+            href="{{url_for('moderator.question_moderation')}}"
+            class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200"
+          >
+            View all
+          </a>
+        </div>
+        <div class="space-y-4">
+          {% for question in unofficial[:5] %}
+          <div class="border-b pb-4 last:border-0">
+            <div class="flex items-center justify-between">
+              <a
+                href=" {{url_for('question_and_answer.questions_details', question_id=question.questionid) }}"
+                class="text-blue-600 hover:text-blue-800 font-semibold mb-2 block"
+              >
+                <h3 class="">{{ question.question_title }}</h3>
+              </a>
+              <div class="flex space-x-2">
+                <a
+                  href="{{url_for('question_and_answer.questions_delete', question_id=question.questionid) }}"
+                  class="px-3 py-1 text-sm bg-red-100 text-red-800 rounded-full hover:bg-red-200"
+                >
+                  Delete
+                </a>
+              </div>
+            </div>
+            <p class="text-sm text-gray-500">
+              Received {{ question.relative_time }} ago
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-6">Offical Answers</h2>
+        <div class="space-y-4">
+          <!-- charts started -->
+          <div
+            class=" w-full bg-white rounded-lg shadow p-4 md:p-6"
+          >
+            <!-- Donut Chart -->
+            <div class="py-6" id="donut-chart"></div>
+
+          </div>
+
+          <!-- charts ended -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  const getChartOptions = () => {
+    return {
+      series: [{{data_summary.official}}, {{data_summary.unofficial}}],
+      colors: ["#1C64F2", "#E74694"],
+      chart: {
+        height: 320,
+        width: "100%",
+        type: "donut",
+      },
+      stroke: {
+        colors: ["transparent"],
+        lineCap: "",
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontFamily: "Inter, sans-serif",
+                offsetY: 20,
+              },
+              total: {
+                showAlways: true,
+                show: true,
+                label: "Officially Answered",
+                fontFamily: "Inter, sans-serif",
+                formatter: function (w) {
+                  const sum = w.globals.seriesTotals.reduce((a, b) => {
+                    return  ((a/(a+b))*100).toFixed(1);
+                  });
+                  return sum+'%';
+                },
+              },
+              value: {
+                show: true,
+                fontFamily: "Inter, sans-serif",
+                offsetY: -20,
+                formatter: function (value) {
+                  return value;
+                },
+              },
+            },
+            size: "80%",
+          },
+        },
+      },
+      grid: {
+        padding: {
+          top: -2,
+        },
+      },
+      labels: ["Officially Answered", "Pending"],
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        position: "bottom",
+        fontFamily: "Inter, sans-serif",
+      },
+      yaxis: {
+        labels: {
+          formatter: function (value) {
+            return value;
+          },
+        },
+      },
+      xaxis: {
+        labels: {
+          formatter: function (value) {
+            return value;
+          },
+        },
+        axisTicks: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+      },
+    };
+  };
+
+  if (
+    document.getElementById("donut-chart") &&
+    typeof ApexCharts !== "undefined"
+  ) {
+    const chart = new ApexCharts(
+      document.getElementById("donut-chart"),
+      getChartOptions()
+    );
+    chart.render();
+
+    // Get all the checkboxes by their class name
+    const checkboxes = document.querySelectorAll(
+      '#devices input[type="checkbox"]'
+    );
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,346 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Responsive Navbar</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <nav>
+      <!-- What is url_for("document") -->
+      <div class="rectangle logo-rectangle">
+        <div class="logo">
+          <a
+            href="{{ url_for('user.login') }}"
+            class="internal_link flex items-center space-x-2"
+          >
+            <svg
+              class="h-8 w-8 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12" y2="16" />
+            </svg>
+            <span class="text-xl font-bold">iHelp</span>
+          </a>
+        </div>
+      </div>
+      <div class="rectangle links-rectangle">
+        <div class="flex items-center justify-center w-full relative">
+          <div class="nav-left hidden">
+            <a href="{{ url_for('user.index') }}" style="padding: 1rem"
+              >{{nav}}</a
+            >
+          </div>
+          <ul class="nav-center flex hidden">
+            {% if nav=='User Dashboard' %}
+            <li>
+              <a href="{{ url_for('question_and_answer.questions') }}"
+                >All Questions</a
+              >
+            </li>
+            <li>
+              <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.ask_question') }}"
+                >Ask Question</a
+              >
+            </li>
+            {% elif nav=='Ask Question' %}
+            <li>
+              <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+            </li>
+            <li>
+              <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.questions') }}"
+                >All Questions</a
+              >
+            </li>
+            {% elif nav=='Organization Dashboard' %}
+            <li>
+              <a href="{{ url_for('organization.userManager')}}"
+                >User Manager</a
+              >
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.questions') }}"
+                >All Questions</a
+              >
+            </li>
+            <li><a href="{{ url_for('documents') }}">Documents</a></li>
+            {% elif nav=='User Manager' %}
+            <li>
+              <a href="{{ url_for('organization.organization_dashboard') }}"
+                >Organization Dashboard</a
+              >
+            </li>
+            {% elif nav=='All Questions' %}
+            <li>
+              <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.ask_question') }}"
+                >Ask Question</a
+              >
+            </li>
+            <li>
+              <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+            </li>
+            {% elif nav.startswith('Question ') %}
+            <li>
+              <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.questions') }}"
+                >All Questions</a
+              >
+            </li>
+            <li>
+              <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+            </li>
+            <li>
+              <a href="{{ url_for('question_and_answer.ask_question') }}"
+                >Ask Question</a
+              >
+            </li>
+
+            {% else %}
+            <li>
+              <label style="font-family: cursive">Welcome on iHelp</label>
+            </li>
+            {% endif%}
+          </ul>
+        </div>
+      </div>
+      <div class="rectangle signin-rectangle">
+        <div class="navbar-actions">
+          <div class="flex items-center space-x-4">
+            {% if nav=='Login' %}
+            <a
+              href="{{ url_for('user.register') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Register
+            </a>
+            {% elif nav=='User Dashboard' or nav=='Ask Question' or
+            nav=='Organization Dashboard' or nav=='User Manager' or nav=='All
+            Questions' or nav=='Question' or nav.startswith('Question ') %}
+            <a
+              href="{{ url_for('other.logout') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log out
+            </a>
+            {% else %}
+            <a
+              href="{{ url_for('user.login') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log in
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const navLeft = document.querySelector(".nav-left");
+        const navCenter = document.querySelector(".nav-center");
+        const linksRectangle = document.querySelector(".links-rectangle");
+
+        // Make nav-left appear in the center
+        navLeft.classList.remove("hidden");
+        navLeft.classList.add("centered");
+
+        // Set the background color of the entire nav to gray initially
+        linksRectangle.style.backgroundColor = "#eff6ff";
+
+        // Move nav-left to the leftmost of nav-center and show links after animation
+        setTimeout(() => {
+          // Simultaneously move nav-left and change background
+          navLeft.classList.remove("centered");
+          navLeft.classList.add("to-left");
+
+          // Gradually transition the background of the links-rectangle to white
+          linksRectangle.style.transition = "background-position 1.2s ease";
+          linksRectangle.style.backgroundPosition = "0 0"; // Move gradient to the right
+
+          // Once transition is done, show nav-center links
+          setTimeout(() => {
+            navCenter.classList.remove("hidden");
+            navCenter.style.opacity = "1";
+
+            // Slowly reveal links one by one
+            const links = navCenter.querySelectorAll("li");
+            links.forEach((link, index) => {
+              link.style.opacity = "0";
+              link.style.transform = "translateY(20px)";
+
+              setTimeout(() => {
+                link.style.transition =
+                  "opacity 0.5s ease, transform 0.5s ease";
+                link.style.opacity = "1";
+                link.style.transform = "translateY(0)";
+              }, index * 200); // Stagger the appearance of each link
+            });
+
+            navCenter.classList.add("show-links");
+          }, 1000);
+        }, 10);
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  /* General Styles */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    transition: background-color 1s ease;
+    background-color: transparent; /* Make nav background transparent */
+  }
+
+  .rectangle {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+      rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: #eff6ff; /* Optional: keep rectangles with a white background */
+  }
+
+  nav .logo-rectangle {
+    flex: 1;
+    justify-content: center;
+    max-width: 200px;
+    min-height: 70px;
+  }
+
+  .internal_link {
+    max-width: 200px;
+    min-height: 70px;
+    padding-inline: 40px;
+  }
+
+  nav .links-rectangle {
+    flex: 2;
+    justify-content: center;
+    max-width: 800px;
+    min-height: 70px;
+    position: relative;
+    transition: background-color 0.1s ease; /* Transition for background color */
+    background: linear-gradient(
+      to left,
+      #eff6ff,
+      white 50%
+    ); /* Gray to white from right to left */
+    background-size: 200% 100%; /* Make the gradient twice the size */
+    background-position: -100% 0; /* Start with the gradient off-screen on the left */
+  }
+
+  .nav-left {
+    background-color: #eff6ff;
+    color: black;
+    font-family: cursive;
+    font-size: large;
+    padding-inline: 20px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 1s ease;
+    z-index: 2;
+  }
+
+  .nav-left.hidden {
+    display: none;
+  }
+
+  .nav-left.centered {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .nav-left.to-left {
+    left: 0;
+    transform: translateX(0);
+  }
+
+  .nav-center {
+    justify-content: center;
+    list-style: none;
+    position: relative;
+    transition: opacity 0.1s ease, visibility 0.1s ease; /* Smooth visibility transition */
+  }
+
+  .nav-center.hidden {
+    display: none;
+  }
+
+  .nav-center.show-links {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  nav ul li {
+    margin-left: 1.5rem;
+  }
+
+  nav ul li a {
+    text-decoration: none;
+    color: #000;
+    font-size: 95%;
+    font-weight: 400;
+    padding: 4px 8px;
+    border-radius: 5px;
+    padding: 1.5rem;
+  }
+
+  nav ul li a:hover {
+    background-color: #eff6ff;
+    padding: 1.5rem;
+  }
+
+  nav .signin-rectangle {
+    flex: 1;
+    justify-content: center;
+    max-width: 200px;
+    min-height: 70px;
+  }
+
+  .navbar-actions .signin {
+    background-color: #0052cc;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border: 2px solid #0052cc; /* Add visible border */
+  }
+
+  @media screen and (max-width: 790px) {
+    .links-rectangle {
+      display: none;
+    }
+  }
+</style>

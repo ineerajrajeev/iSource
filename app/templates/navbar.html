@@ -1,0 +1,73 @@
+<nav class="bg-white border-b border-gray-200">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-8">
+        <a
+          href="{{ url_for('user.index') }}"
+          class="flex items-center space-x-2"
+        >
+          <svg
+            class="h-8 w-8 text-blue-600"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12" y2="16" />
+          </svg>
+          <span class="text-xl font-bold">iHelp</span>
+          <span class="text-m font-bold">| {{ nav }}</span>
+        </a>
+      </div>
+      <div>
+        <ul class="flex space-x-4">
+          {% if not 'user_id' in session %}
+          <li>
+            <a href="{{ url_for('user.login') }}" class="hover:text-blue-500"
+              >Log In</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('organization.OrganizationRegister') }}"
+              class="bg-blue-600 px-4 py-2 text-white rounded-md hover:bg-blue-700"
+            >
+              Join Now
+            </a>
+          </li>
+          {% else %} {% if nav == 'Moderator Dashboard' %}
+          <li><a href="{{ url_for('moderator.dashboard') }}">Dashboard</a></li>
+          <li>
+            <a href="{{ url_for('moderator.reports') }}">Reported Content</a>
+          </li>
+          {% elif nav == 'User Dashboard' %}
+          <li>
+            <a href="{{ url_for('question_and_answer.questions') }}"
+              >All Questions</a
+            >
+          </li>
+          <li><a href="{{ url_for('user.myquestions') }}">My Questions</a></li>
+          <li>
+            <a href="{{ url_for('question_and_answer.ask_question') }}"
+              >Ask Question</a
+            >
+          </li>
+          {% endif %}
+          <li>
+            <a
+              href="{{ url_for('other.logout') }}"
+              class="text-gray-700 hover:text-gray-900"
+              >Log Out</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,534 @@
+{% extends "layout.html" %} {% block title %} Home - Your Gateway to Knowledge {% endblock %} {% block navbar %} {% include "UserNavbar.html" %} {%
+endblock %} {% block style %}
+<style>
+  /* Custom styles for the question detail page */
+  .QuestionDetailContainer {
+    padding-top: 50px; /* Margin from top */
+    padding-bottom: 50px;
+  }
+
+  .answer-wrap {
+    white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
+    word-wrap: break-word; /* Break long words */
+    overflow-wrap: break-word; /* Break long words */
+  }
+
+  .green-bar {
+    background-color: #28a745; /* Green color */
+    width: 3%; /* Fixed width for the green bar */
+    height: 100%; /* Matches the height of the parent div */
+    position: absolute; /* Allows the bar to be positioned inside the parent */
+    top: 0;
+    left: 0; /* Aligns the green bar to the left */
+    border-top-left-radius: 0.5rem; /* Matches the top-left border radius of the white bg */
+    border-bottom-left-radius: 0.5rem; /* Matches the bottom-left border radius of the white bg */
+  }
+</style>
+{% endblock %} {% block content %}
+
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="QuestionDetailContainer max-w-6xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h1 class="text-2xl font-bold mb-4">{{question.question_title}}</h1>
+      <div class="flex items-center text-sm text-gray-500 mb-6">
+        <span>Asked {{relative_time}}</span>
+        <span class="mx-2">•</span>
+      </div>
+
+      <div class="flex gap-6">
+        <div class="flex flex-col items-center space-y-2">
+          <div
+            class="flex flex-col {{ 'space-y-2' if question.status else 'space-y-reverse-2' }} items-center"
+          >
+            <!-- Upvote count -->
+            <span id="upvote-count" class="font-semibold text-lg">
+              {{ question.plus_one }}
+            </span>
+            {% if question.status == True %}
+
+            <!-- Arrow down when status is False -->
+            <!-- <svg id="upvote-icon"
+              class="h-8 w-8 text-gray-400 hover:text-orange-500 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              data-question-id="{{ question.questionid }}">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  d="M19 9l-7 7-7-7" ></path>
+            </svg> -->
+
+            <svg
+              id="upvote-icon"
+              class="h-6 w-6 text-gray-400 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              data-question-id="{{ question.questionid }}"
+              stroke-width="0.00024"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                <path
+                  d="M7.24001 11V20H5.63001C4.73001 20 4.01001 19.28 4.01001 18.39V12.62C4.01001 11.73 4.74001 11 5.63001 11H7.24001ZM18.5 9.5H13.72V6C13.72 4.9 12.82 4 11.73 4H11.64C11.24 4 10.88 4.24 10.72 4.61L7.99001 11V20H17.19C17.92 20 18.54 19.48 18.67 18.76L19.99 11.26C20.15 10.34 19.45 9.5 18.51 9.5H18.5Z"
+                  fill="#000000"
+                ></path>
+              </g>
+            </svg>
+
+            {% else %}
+            <!-- Arrow up when status is True -->
+            <!-- <svg id="upvote-icon"
+              class="h-8 w-8 text-gray-400 hover:text-orange-500 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              data-question-id="{{ question.questionid }}">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  d="M5 15l7-7 7 7" ></path>
+            </svg> -->
+            <svg
+              id="upvote-icon"
+              class="h-6 w-6 text-gray-400 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              data-question-id="{{ question.questionid }}"
+              stroke-width="0.00024"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                <path
+                  d="M20.22 9.55C19.79 9.04 19.17 8.75 18.5 8.75H14.47V6C14.47 4.48 13.24 3.25 11.64 3.25C10.94 3.25 10.31 3.67 10.03 4.32L7.49 10.25H5.62C4.31 10.25 3.25 11.31 3.25 12.62V18.39C3.25 19.69 4.32 20.75 5.62 20.75H17.18C18.27 20.75 19.2 19.97 19.39 18.89L20.71 11.39C20.82 10.73 20.64 10.06 20.21 9.55H20.22ZM5.62 19.25C5.14 19.25 4.75 18.86 4.75 18.39V12.62C4.75 12.14 5.14 11.75 5.62 11.75H7.23V19.25H5.62ZM17.92 18.63C17.86 18.99 17.55 19.25 17.18 19.25H8.74V11.15L11.41 4.9C11.45 4.81 11.54 4.74 11.73 4.74C12.42 4.74 12.97 5.3 12.97 5.99V10.24H18.5C18.73 10.24 18.93 10.33 19.07 10.5C19.21 10.67 19.27 10.89 19.23 11.12L17.91 18.62L17.92 18.63Z"
+                  fill="#000000"
+                ></path>
+              </g>
+            </svg>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex-1">
+          <div class="prose max-w-none">
+            <p>{{question.question_detail}}</p>
+          </div>
+
+          <div class="mt-6 flex items-center space-x-4">
+            {% for tag in question.tags %}
+            <span
+              class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+            >
+              {{tag}}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-4">
+        {{ question.answer_count }} Answers
+      </h2>
+
+      {% if question.official_answer != "" %}
+      <div class="bg-white rounded-lg shadow-md p-6 mb-4 relative flex">
+        <div class="green-bar"></div>
+        <!-- Green bar added -->
+        <div class="ml-8 flex gap-6 w-full">
+          <div class="w-full">
+            <pre class="answer-wrap whitespace-pre-wrap break-words">
+{{ question.official_answer | safe }}</pre
+            >
+          </div>
+        </div>
+        <!-- Positioned at the bottom right of the container -->
+        <div
+          class="absolute bottom-2 right-6 text-sm text-gray-500 whitespace-nowrap"
+        >
+          <span>Answered by Officials</span>
+        </div>
+      </div>
+
+      {% endif %} {% for answer in answers %}
+      <!-- In the Answer Section -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+        <div class="flex gap-6">
+          <div style="text-align: center">
+            <!-- Upvote Arrow -->
+            <svg
+              id=""
+              onclick="upvoteAnswer({{answer.answerid}})"
+              class="h-8 w-8 text-gray-400 hover:text-orange-500 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 15l7-7 7 7"
+              />
+            </svg>
+
+            <!-- Vote Count -->
+            <div class="font-semibold text-lg flex">
+              <svg
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+                class="mt-1"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path
+                    d="M5.08884 11.2945C5.26942 11.7216 5.69482 12 6.16669 12H9V19C9 19.5523 9.44772 20 10 20H14C14.5523 20 15 19.5523 15 19V12H17.8333C18.3052 12 18.7306 11.7216 18.9112 11.2945C19.0917 10.8674 18.9919 10.3759 18.6583 10.049L12.825 4.33474C12.3693 3.88842 11.6307 3.88842 11.175 4.33474L5.34174 10.049C5.00808 10.3759 4.90826 10.8674 5.08884 11.2945Z"
+                    fill="#000000"
+                  ></path>
+                </g>
+              </svg>
+
+              <span id="upvote-count-ans" data="{{answer.answerid}}">
+                {{ answer.upvotes }}
+              </span>
+            </div>
+            <div class="font-semibold text-lg flex">
+              <svg
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+                class="mt-1"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path
+                    d="M5.08884 12.7055C5.26942 12.2784 5.69482 12 6.16669 12H9V5C9 4.44772 9.44772 4 10 4H14C14.5523 4 15 4.44771 15 5V12H17.8333C18.3052 12 18.7306 12.2784 18.9112 12.7055C19.0917 13.1326 18.9919 13.6241 18.6583 13.951L12.825 19.6653C12.3693 20.1116 11.6307 20.1116 11.175 19.6653L5.34174 13.951C5.00808 13.6241 4.90826 13.1326 5.08884 12.7055Z"
+                    fill="#000000"
+                  ></path>
+                </g>
+              </svg>
+              <span id="downvote-count-ans" data="{{answer.answerid}}">
+                {{ answer.downvotes }}
+              </span>
+            </div>
+
+            <!-- Downvote Arrow -->
+            <svg
+              id=""
+              onclick="downvoteAnswer({{answer.answerid}})"
+              class="h-8 w-8 text-gray-400 hover:text-orange-500 cursor-pointer"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+
+          <div>
+            <pre class="answer-wrap">{{answer.formatted_answer | safe}}</pre>
+          </div>
+        </div>
+
+        <div class="mt-4 text-sm text-gray-500">
+          <div class="flex items-center justify-between">
+            {% if role=="moderator" or role=="admin" %}
+            <!-- Delete Button -->
+            <a
+              href="{{url_for('question_and_answer.answer_delete', answerid=answer.answerid) }}"
+              class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5 inline-block"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 10.5v9.75A2.25 2.25 0 008.25 22.5h7.5A2.25 2.25 0 0018 20.25V10.5M19.5 6h-15m4.5 0v-.75A1.5 1.5 0 0110.5 3h3a1.5 1.5 0 011.5 1.5V6m-9 0h9"
+                />
+              </svg>
+            </a>
+            {% endif %}
+            <spacer></spacer>
+
+            <!-- Inform Section -->
+            {% if answer.username.username == "AI@iHelp.com" %}
+            <span
+              >🤖 Answered by AI {% if role=="moderator" %} {% if
+              answer.marked_as_official %}
+              <a
+                href="{{url_for('moderator.unmark_as_official',answerid=answer.answerid)}}"
+                class="ml-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm"
+              >
+                UnMark As Official
+              </a>
+              {% else %}
+              <a
+                href="{{url_for('moderator.mark_as_official',answerid=answer.answerid)}}"
+                class="ml-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+              >
+                Mark As Official
+              </a>
+              {% endif %} {% endif %}
+            </span>
+            {% else %}
+            <span>
+              {% if answer.marked_as_official %} ✅ {% endif %} answered
+              {{answer.relative_time}} by {{answer.username}} {% if
+              role=="moderator" %} {% if answer.marked_as_official %}
+              <a
+                href="{{url_for('moderator.unmark_as_official',answerid=answer.answerid)}}"
+                class="ml-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm"
+              >
+                UnMark As Official
+              </a>
+              {% else %}
+              <a
+                href="{{url_for('moderator.mark_as_official',answerid=answer.answerid)}}"
+                class="ml-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+              >
+                Mark As Official
+              </a>
+              {% endif %} {% endif %}
+            </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-bold mb-4">Your Answer</h3>
+      <form action="/questions_details/{{ question.questionid }}" method="POST">
+        <textarea
+          name="answer"
+          class="w-full h-48 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 answer"
+          name="answer"
+          id="answer"
+          placeholder="Write your answer here..."
+        ></textarea>
+
+        {% if role=="moderator" %}
+        <div class="mt-4">
+          <label
+            for="official_status"
+            class="block text-sm font-medium text-gray-700"
+          >
+            Mark as Official Answer:
+          </label>
+          <select
+            name="official_status"
+            id="official_status"
+            class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+        {% endif %}
+
+        <button
+          type="submit"
+          class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+        >
+          Post Your Answer
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script>
+  /*
+  document.addEventListener("DOMContentLoaded", () => {
+    // Question Upvote Handling
+    const upvoteIcons = document.querySelectorAll("#upvote-icon");
+    
+    upvoteIcons.forEach((upvoteIcon) => {
+      const upvoteCount = upvoteIcon.nextElementSibling; // The count next to the icon
+  
+      upvoteIcon.addEventListener("click", () => {
+        const questionId = upvoteIcon.getAttribute("data-question-id");
+  
+        fetch(`/upvote/${questionId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ action: "upvote" }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              upvoteCount.textContent = data.new_count;
+  
+              // Get the <path> element inside the upvote icon
+              const path = upvoteIcon.querySelector("path");
+              
+              // Update the 'd' attribute of the path based on the status
+              if (data.status) {
+                path.setAttribute("d", "M19 9l-7 7-7-7");
+              } else {
+                path.setAttribute("d", "M5 15l7-7 7 7");
+              }
+            }
+          })
+          .catch((error) => {
+            alert(`Upvote failed: ${error}`);
+          });
+      });
+    });
+  });
+  */
+  // upvote process
+  document.addEventListener("DOMContentLoaded", () => {
+    const upvoteIcons = document.querySelectorAll("#upvote-icon");
+    upvoteIcons.forEach((upvoteIcon) => {
+      const upvoteCount = upvoteIcon.previousElementSibling; // The count before the icon
+
+      upvoteIcon.addEventListener("click", () => {
+        const questionId = upvoteIcon.getAttribute("data-question-id");
+
+        fetch(`/upvote/${questionId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ action: "upvote" }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              upvoteCount.textContent = data.new_count;
+
+              // Get the <path> element inside the upvote icon
+              const path = upvoteIcon.querySelector("path");
+
+              // Update the 'd' attribute of the path based on the status
+              if (data.status) {
+                path.setAttribute(
+                  "d",
+                  "M7.24001 11V20H5.63001C4.73001 20 4.01001 19.28 4.01001 18.39V12.62C4.01001 11.73 4.74001 11 5.63001 11H7.24001ZM18.5 9.5H13.72V6C13.72 4.9 12.82 4 11.73 4H11.64C11.24 4 10.88 4.24 10.72 4.61L7.99001 11V20H17.19C17.92 20 18.54 19.48 18.67 18.76L19.99 11.26C20.15 10.34 19.45 9.5 18.51 9.5H18.5Z"
+                );
+              } else {
+                path.setAttribute(
+                  "d",
+                  "M20.22 9.55C19.79 9.04 19.17 8.75 18.5 8.75H14.47V6C14.47 4.48 13.24 3.25 11.64 3.25C10.94 3.25 10.31 3.67 10.03 4.32L7.49 10.25H5.62C4.31 10.25 3.25 11.31 3.25 12.62V18.39C3.25 19.69 4.32 20.75 5.62 20.75H17.18C18.27 20.75 19.2 19.97 19.39 18.89L20.71 11.39C20.82 10.73 20.64 10.06 20.21 9.55H20.22ZM5.62 19.25C5.14 19.25 4.75 18.86 4.75 18.39V12.62C4.75 12.14 5.14 11.75 5.62 11.75H7.23V19.25H5.62ZM17.92 18.63C17.86 18.99 17.55 19.25 17.18 19.25H8.74V11.15L11.41 4.9C11.45 4.81 11.54 4.74 11.73 4.74C12.42 4.74 12.97 5.3 12.97 5.99V10.24H18.5C18.73 10.24 18.93 10.33 19.07 10.5C19.21 10.67 19.27 10.89 19.23 11.12L17.91 18.62L17.92 18.63Z"
+                );
+              }
+            }
+          })
+          .catch((error) => {
+            alert(`Upvote failed: ${error}`);
+          });
+      });
+    });
+  });
+  // Answer Upvote and Downvote Handling
+  function upvoteAnswer(answerId) {
+    fetch(`/upvoteans/${answerId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Update the upvote count for this specific answer
+          const upvoteCountElement = document.querySelector(
+            `span[data="${answerId}"][id="upvote-count-ans"]`
+          );
+          const downvoteCountElement = document.querySelector(
+            `span[data="${answerId}"][id="downvote-count-ans"]`
+          );
+          if (upvoteCountElement) {
+            upvoteCountElement.textContent = data.upvote;
+            downvoteCountElement.textContent = data.downvote;
+          }
+        }
+      })
+      .catch((error) => {
+        alert(`Upvote failed: ${error}`);
+      });
+  }
+
+  function downvoteAnswer(answerId) {
+    fetch(`/downvoteans/${answerId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Update the downvote count for this specific answer
+          const downvoteCountElement = document.querySelector(
+            `span[data="${answerId}"][id="downvote-count-ans"]`
+          );
+          const upvoteCountElement = document.querySelector(
+            `span[data="${answerId}"][id="upvote-count-ans"]`
+          );
+          if (downvoteCountElement) {
+            downvoteCountElement.textContent = data.downvote;
+            upvoteCountElement.textContent = data.upvote;
+          }
+        }
+      })
+      .catch((error) => {
+        alert(`Downvote failed: ${error}`);
+      });
+  }
+</script>
+{% endblock %}

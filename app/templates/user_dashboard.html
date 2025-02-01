@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Home - Your Gateway to Programming Knowledge
+{% endblock %}
+
+{% block navbar %}
+  {% include "UserNavbar.html" %}
+{% endblock %}
+
+
+{% block style %}
+  <style>
+
+    .homecontainer {
+      padding-top: 50px; /* Margin from top */
+      padding-bottom: 50px; /* Margin from bottom */
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="homecontainer max-w-6xl mx-auto">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-4">
+        Your Gateway to perfect solutions
+      </h1>
+      <p class="text-xl text-gray-600 mb-8">
+        Get answers from developers and AI, all in one place
+      </p>
+      <a
+        href="{{url_for('question_and_answer.questions')}}"
+        class="bg-orange-500 text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-orange-600"
+      >
+        View All Questions
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+          <img src="{{ url_for('static', filename='img/question-mark.png') }}" alt="question Icon" class="h-12 w-12 text-blue-600"/>  
+        <h3 class="text-xl font-semibold mb-2">Trending Questions</h3>
+        <p class="text-gray-600">
+          Explore the most discussed topics in the developer community
+        </p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <img src="{{ url_for('static', filename='img/answer.png') }}" alt="answer Icon" class="h-12 w-12 text-blue-600"/>  
+        <h3 class="text-xl font-semibold mb-2">Expert Answers</h3>
+        <p class="text-gray-600">
+          Get solutions from experienced developers worldwide
+        </p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <img src="{{ url_for('static', filename='img/ai.png') }}" alt="answer Icon" class="h-12 w-12 text-blue-600"/>  
+        <h3 class="text-xl font-semibold mb-2">AI Assistant</h3>
+        <p class="text-gray-600">
+          Instant AI-powered responses for quick problem-solving
+        </p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <h2 class="text-2xl font-bold mb-6">Recent Questions</h2>
+      <div class="space-y-6">
+        {% if questions %}
+        {% for question in questions %}
+        <div class="border-b pb-6 last:border-0">
+          <a
+            href=" {{url_for('question_and_answer.questions_details', question_id=question.questionid) }}"
+            class="text-xl font-semibold text-blue-600 hover:text-blue-800 mb-2 block"
+          >
+            {{ question.question_title }}
+          </a>
+          <p class="text-gray-600 mb-4">
+            {{ question.question_detail }}
+          </p>
+          <div class="flex items-center text-sm text-gray-500">
+            <span>Asked {{ question.relative_time }}</span>
+            <span class="mx-2">•</span>
+            <span>{{ question.no_of_ans }} answers</span>
+            <span class="mx-2">•</span>
+            <span>{{ question.email }}</span>
+            {% if question.ai_answer %}
+              <span class="mx-2">•</span>
+              <span>Answered by AI</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div id="alert-additional-content-5" class="p-4 border border-gray-300 rounded-lg bg-gray-50" role="alert">
+          <div class="flex items-center">
+            <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
+            <span class="sr-only">Info</span>
+            <h3 class="text-lg font-medium text-gray-800">No Questions Posted Till Now</h3>
+          </div>
+          <div class="mt-2 mb-4 text-sm text-gray-800">
+            Get Started By Postsing Your First Question
+          </div>
+          <div class="flex">
+            <a href={{url_for('question_and_answer.ask_question')}} class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center">
+              
+              <svg class="me-2 h-3 w-3 rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+            </svg>
+              Ask Your First Question
+          </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}

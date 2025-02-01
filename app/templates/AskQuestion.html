@@ -1,0 +1,88 @@
+{% extends "layout.html" %} {% block title %} Home - Your Gateway to Programming
+Knowledge {% endblock %} {% block navbar %} {% include "UserNavbar.html" %} {%
+endblock %} {% block style %}
+<style>
+  .askquestioncontainer {
+    padding-top: 50px; /* Margin from top */
+    padding-bottom: 50px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="askquestioncontainer max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Ask a Question</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <form
+        action="{{ url_for('question_and_answer.ask_question') }}"
+        method="POST"
+      >
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Title
+          </label>
+          <input
+            type="text"
+            name="title"
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. How to implement authentication in React?"
+            value="{{ request.form.title or '' }}"
+          />
+          <p class="mt-2 text-sm text-gray-500">
+            Be specific and imagine you're asking a question to another person
+          </p>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Body
+          </label>
+          <textarea
+            name="body"
+            class="w-full h-64 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Include all the information someone would need to answer your question..."
+          >
+{{ request.form.body or '' }}</textarea
+          >
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Tags
+          </label>
+          <input
+            type="text"
+            name="tags"
+            class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. javascript react typescript"
+            value="{{ request.form.tags or '' }}"
+          />
+          <p class="mt-2 text-sm text-gray-500">
+            Add up to 5 tags to describe what your question is about
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <button
+            type="submit"
+            class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+          >
+            Post Your Question
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Writing a good question</h2>
+      <ul class="space-y-3 text-gray-700">
+        <li>• Summarize your problem in a one-line title</li>
+        <li>• Describe your problem in detail</li>
+        <li>• Describe what you've tried</li>
+        <li>• Include code samples if applicable</li>
+        <li>• Proofread before posting</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

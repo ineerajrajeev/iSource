@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navbar</title>
+    <!-- Add your CSS file link here -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+  </head>
+  <body>
+    <nav class="bg-white border-b border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-8">
+            <a
+              href="{{ url_for('user.index') }}"
+              class="flex items-center space-x-2"
+            >
+              <svg
+                class="h-8 w-8 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12" y2="16" />
+              </svg>
+              <span class="text-xl font-bold">iHelp {{nav}}</span>
+            </a>
+          </div>
+          <div class="flex items-center space-x-4">
+            {% if not 'user_id' in session %}
+            <a
+              href="{{ url_for('user.login') }}"
+              class="px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log in{{user}}
+            </a>
+            <a
+              href="{{ url_for('organization.OrganizationRegister') }}"
+              class="bg-blue-600 px-4 py-2 text-white rounded-md hover:bg-blue-700"
+            >
+              Join now{{user}}
+            </a>
+            {% else %}
+            <a
+              href="{{ url_for('question_and_answer.ask_question') }}"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Questions
+            </a>
+            <a
+              href="{{ url_for('other.logout') }}"
+              class="px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log out
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>

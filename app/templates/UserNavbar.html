@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navbar</title>
+    <!-- Add your CSS file link here -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+  </head>
+  <body>
+    <nav class="bg-white border-b border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-8">
+            <a
+              href="{{ url_for('user.login') }}"
+              class="flex items-center space-x-2"
+            >
+              <svg
+                class="h-8 w-8 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12" y2="16" />
+              </svg>
+              <span class="text-xl font-bold">iHelp </span>
+              <span class="text-m font-bold">| {{nav}} </span>
+            </a>
+          </div>
+          <div>
+            <div
+              class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+              id="navbar-sticky"
+            >
+              <ul
+                class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0"
+              >
+                {% if nav=='User Dashboard' %}
+                <li>
+                  <a href="{{ url_for('question_and_answer.questions') }}"
+                    >All Questions</a
+                  >
+                </li>
+                <li>
+                  <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('question_and_answer.ask_question') }}"
+                    >Ask Question</a
+                  >
+                </li>
+                {% elif nav=='Ask Question' %}
+                    {% if role=='moderator' %}
+                    <li>
+                      <a href="{{ url_for('moderator.moderator_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.questions') }}"
+                        >All Questions</a
+                      >
+                    </li>
+                    <li>
+                      <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                    </li>
+                    {% else %}
+
+                    <li>
+                      <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.questions') }}"
+                        >All Questions</a
+                      >
+                    </li>
+                    {% endif %}
+                {% elif nav=='Organization Dashboard' %}
+                  <li>
+                    <a href="{{ url_for('organization.userManager')}}"
+                      >User Manager</a
+                    >
+                  </li>
+                  <li>
+                    <a href="{{ url_for('question_and_answer.questions')}}"
+                      >All questions</a
+                    >
+                  </li>
+                {% elif nav=='Moderator Dashboard' %}
+                  <li>
+                    <a href="{{ url_for('question_and_answer.questions')}}"
+                      >All Questions</a
+                    >
+                  </li>
+                  <li>
+                    <a href="{{ url_for('user.myquestions')}}">Questions</a>
+                  </li>
+                  <li>
+                    <a href="{{ url_for('question_and_answer.ask_question')}}"
+                      >Ask Questions</a
+                    >
+                  </li>
+                {% elif nav=='User Manager' %}
+                  <li>
+                    <a href="{{ url_for('organization.organization_dashboard') }}"
+                      >Organization Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a href="{{ url_for('question_and_answer.questions')}}"
+                      >All Questions</a
+                    >
+                  </li>
+
+                {% elif nav=='My Questions' %}
+                    {% if role=='moderator' %}
+                    <li>
+                      <a href="{{ url_for('moderator.moderator_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.ask_question') }}"
+                        >Ask Question</a
+                      >
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.questions') }}"
+                        >All Questions</a
+                      >
+                    </li>
+                    {% else %}
+                    <li>
+                      <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+                      </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.questions') }}"
+                        >All Questions</a
+                      >
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.ask_question') }}"
+                        >Ask Question</a
+                      >
+                    </li>
+                    {% endif %}
+
+                {% elif nav=='All Questions' %}
+
+                    {% if role=='moderator' %}
+                    <li>
+                      <a href="{{ url_for('moderator.moderator_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.ask_question') }}"
+                        >Ask Question</a
+                      >
+                    </li>
+                    <li>
+                      <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                    </li>
+
+                    {% elif role=="organization" %}
+                    <li>
+                      <a href="{{ url_for('organization.organization_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('organization.userManager') }}">User Manager</a>
+                    </li>
+                    {% else %}
+
+                    <li>
+                      <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('question_and_answer.ask_question') }}"
+                        >Ask Question</a
+                      >
+                    </li>
+                    <li>
+                      <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                    </li>
+                    {%endif%}
+                
+                {% elif nav=='Moderate Questions' %}
+                <li>
+                  <a href="{{ url_for('moderator.moderator_dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('question_and_answer.questions') }}"
+                    >All Questions</a
+                  >
+                </li>
+                <li>
+                  <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('question_and_answer.ask_question') }}"
+                    >Ask Question</a
+                  >
+                </li>
+
+                {% elif nav.startswith('Question ') %}
+                <li>
+                  <a href="{{ url_for('user.user_dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('question_and_answer.questions') }}"
+                    >All Questions</a
+                  >
+                </li>
+                <li>
+                  <a href="{{ url_for('user.myquestions') }}">My Questions</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('question_and_answer.ask_question') }}"
+                    >Ask Question</a
+                  >
+                </li>
+
+                {% else %}
+                <li><label style="font-family: cursive"></label></li>
+                {% endif%}
+              </ul>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            {% if nav=='Login' %}
+            <a
+              href="{{ url_for('user.register') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Register
+            </a>
+            {% elif nav=='User Dashboard' or nav=='Ask Question' or
+            nav=='Organization Dashboard' or nav=='User Manager' or nav=='All
+            Questions' or nav=='Question' or nav.startswith('Question ') or
+            nav=='Moderator Dashboard' or nav=='All Questions' or nav=='My Questions' or nav=='Moderate Questions' %}
+            <a
+              href="{{ url_for('other.logout') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log out
+            </a>
+            {% else %}
+            <a
+              href="{{ url_for('user.login') }}"
+              class="signin px-4 py-2 text-gray-700 hover:text-gray-900"
+            >
+              Log in
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>

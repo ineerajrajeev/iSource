@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Home - Your Gateway to Programming Knowledge
+{% endblock %}
+
+{% block navbar %}
+  {% include "UserNavbar.html" %}
+{% endblock %}
+
+
+{% block style %}
+  <style>
+
+    .homecontainer {
+      padding-top: 50px; /* Margin from top */
+      padding-bottom: 50px;
+    }
+  </style>
+{% endblock %}
+
+{%block content %}
+<div class="homecontainer max-w-6xl mx-auto">
+<div class="bg-gradient-to-b from-blue-50 to-white">
+  <div class="flex items-center justify-between space-x-4 py-4">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">Moderate Questions</h1>
+    </div>
+    <div class="relative flex items-center">
+        <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div>
+        <input type="text" id="table-search-question" class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search for question">
+    </div>
+</div>
+
+
+  <div class="bg-white rounded-lg shadow-md">
+    {% if questions %}
+      {% for question in questions %}
+        <div class="border-b last:border-0 p-6 hover:bg-gray-50 transition">
+          <div class="flex gap-6">
+            <div class="flex flex-col items-center justify-center space-y-2 min-w-20 h-full">
+              <div class="flex items-center space-x-1 mt-5 mr-2">
+                {% if question.status == True %}
+
+
+                <svg id="upvote-icon"
+                class="h-6 w-6 mr-3 text-gray-400 cursor-pointer"
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                data-question-id="{{ question.questionid }}"
+                stroke-width="0.00024">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path d="M7.24001 11V20H5.63001C4.73001 20 4.01001 19.28 4.01001 18.39V12.62C4.01001 11.73 4.74001 11 5.63001 11H7.24001ZM18.5 9.5H13.72V6C13.72 4.9 12.82 4 11.73 4H11.64C11.24 4 10.88 4.24 10.72 4.61L7.99001 11V20H17.19C17.92 20 18.54 19.48 18.67 18.76L19.99 11.26C20.15 10.34 19.45 9.5 18.51 9.5H18.5Z" fill="#000000"></path>
+                  </g>
+                </svg>
+                {% else %}
+                <svg id="upvote-icon"
+                class="h-6 w-6 mr-3 text-gray-400 cursor-pointer"
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                data-question-id="{{ question.questionid }}"
+                stroke-width="0.00024">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path d="M20.22 9.55C19.79 9.04 19.17 8.75 18.5 8.75H14.47V6C14.47 4.48 13.24 3.25 11.64 3.25C10.94 3.25 10.31 3.67 10.03 4.32L7.49 10.25H5.62C4.31 10.25 3.25 11.31 3.25 12.62V18.39C3.25 19.69 4.32 20.75 5.62 20.75H17.18C18.27 20.75 19.2 19.97 19.39 18.89L20.71 11.39C20.82 10.73 20.64 10.06 20.21 9.55H20.22ZM5.62 19.25C5.14 19.25 4.75 18.86 4.75 18.39V12.62C4.75 12.14 5.14 11.75 5.62 11.75H7.23V19.25H5.62ZM17.92 18.63C17.86 18.99 17.55 19.25 17.18 19.25H8.74V11.15L11.41 4.9C11.45 4.81 11.54 4.74 11.73 4.74C12.42 4.74 12.97 5.3 12.97 5.99V10.24H18.5C18.73 10.24 18.93 10.33 19.07 10.5C19.21 10.67 19.27 10.89 19.23 11.12L17.91 18.62L17.92 18.63Z" fill="#000000"></path>
+                  </g>
+                </svg>
+                {% endif %}
+                
+              
+                <span id="upvote-count" class="font-semibold text-lg">
+                  {{ question.plus_one }}
+                </span>
+                
+                
+              </div>
+              
+
+
+              <div class="flex items-center space-x-1">
+                <svg class="mr-2" fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 490.001 490.001" xml:space="preserve" width="20" height="20">
+                  <g>
+                      <g>
+                          <g>
+                              <path d="M450,0h-410c-22.056,0-40,17.944-40,40v280c0,22.056,17.944,40,40,40h235v120c0,4.118,2.524,7.814,6.358,9.314
+                                  c1.184,0.463,2.417,0.687,3.639,0.687c2.738,0,5.42-1.126,7.35-3.218L409.38,360H450c22.056,0,40-17.944,40-40V40
+                                  C490,17.944,472.057,0,450,0z M470,320c0,11.028-8.972,20-20,20h-45c-2.791,0-5.455,1.167-7.348,3.217L295,454.423V350
+                                  c0-5.523-4.477-10-10-10h-245c-11.028,0-20-8.972-20-20V40c0-11.028,8.972-20,20-20h410c11.028,0,20,8.972,20,20V320z"/>
+                              <path d="M144.881,80.001c-3.957,0.047-7.513,2.423-9.072,6.06l-75,175l18.383,7.878L106.594,205h79.982l29.329,64.158
+                                  l18.189-8.315l-80-175C152.45,82.244,148.863,79.974,144.881,80.001z M115.167,185l30.129-70.302L177.433,185H115.167z"/>
+                              <rect x="255.001" y="115" width="80" height="20"/>
+                              <rect x="350" y="115" width="60" height="20"/>
+                              <rect x="255.001" y="165" width="180" height="20"/>
+                              <rect x="255.001" y="215" width="75" height="20"/>
+                          </g>
+                      </g>
+                  </g>
+              </svg>
+                <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">{{question.no_of_ans}}</kbd>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <a
+                  href=" {{url_for('question_and_answer.questions_details', question_id=question.questionid) }}"
+                  class="text-xl text-blue-600 hover:text-blue-800 font-semibold mb-2 block"
+                >
+                  {{ question.question_title }}
+                </a>
+                <div class="flex items-center text-sm text-gray-500">
+                  <a href="{{url_for('question_and_answer.questions_delete', question_id=question.questionid) }}" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Delete</a>
+                </div>
+              </div>
+              {% if question.question_detail|length <= 90 %}
+                <p class="text-gray-600 mb-4">{{ question.question_detail }}</p>
+              {% else %}
+              <p class="text-gray-600 mb-4">{{ question.question_detail[:90] }}....</p>
+              {% endif %}
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  {% for tag in question.tags %}
+                  <span
+                    class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  >
+                    {{ tag }}
+                  </span>
+                  {% endfor %}
+                </div>
+                <div class="flex items-center text-sm text-gray-500">
+                  Raised
+                  <span class="ml-2 mr-2 bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded border border-blue-400">
+                    <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z"/>
+                    </svg>
+                    {{question.relative_time}}
+                    </span> 
+                    by 
+                    <span class="ml-2 bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded me-2 border border-gray-500 ">
+                      <svg class="w-3 h-3 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+                        </svg>{{question.email}}
+                      </span>
+                    
+                </div>
+              </div>
+            </div>
+
+            {% if question.is_ai_answered %}
+            <div class="flex items-center space-x-2 min-w-32">
+              <span class="h-5 w-5 text-green-500">&#129302;</span>
+              <span class="text-sm text-gray-600">AI Answered</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+
+    <div id="alert-additional-content-5" class="p-4 border border-gray-300 rounded-lg bg-gray-50" role="alert">
+      <div class="flex items-center">
+        <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <span class="sr-only">Info</span>
+        <h3 class="text-lg font-medium text-gray-800">No Questions Posted Till Now</h3>
+      </div>
+      <div class="mt-2 mb-4 text-sm text-gray-800">
+        Get Started By Postsing Your First Question
+      </div>
+      <div class="flex">
+        <a href={{url_for('question_and_answer.ask_question')}} class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center">
+          
+          <svg class="me-2 h-3 w-3 rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+        </svg>
+          Ask Your First Question
+      </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    //search on page
+    const searchInput = document.getElementById('table-search-question');
+    const rows = document.querySelectorAll('div.border-b');
+
+    searchInput.addEventListener('input', function() {
+      const q = searchInput.value.toLowerCase();
+
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(q)) {
+          row.style.display = 'block';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // upvote process
+    document.addEventListener("DOMContentLoaded", () => {
+      const upvoteIcons = document.querySelectorAll("#upvote-icon");
+      upvoteIcons.forEach((upvoteIcon) => {
+        const upvoteCount = upvoteIcon.nextElementSibling; // The count next to the icon
+    
+        upvoteIcon.addEventListener("click", () => {
+          const questionId = upvoteIcon.getAttribute("data-question-id");
+    
+          fetch(`/upvote/${questionId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ action: "upvote" }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                upvoteCount.textContent = data.new_count;
+
+                // Get the <path> element inside the upvote icon
+                const path = upvoteIcon.querySelector("path");
+                
+                // Update the 'd' attribute of the path based on the status
+                if (data.status) {
+                  path.setAttribute("d", "M7.24001 11V20H5.63001C4.73001 20 4.01001 19.28 4.01001 18.39V12.62C4.01001 11.73 4.74001 11 5.63001 11H7.24001ZM18.5 9.5H13.72V6C13.72 4.9 12.82 4 11.73 4H11.64C11.24 4 10.88 4.24 10.72 4.61L7.99001 11V20H17.19C17.92 20 18.54 19.48 18.67 18.76L19.99 11.26C20.15 10.34 19.45 9.5 18.51 9.5H18.5Z");
+                } else {
+                  path.setAttribute("d", "M20.22 9.55C19.79 9.04 19.17 8.75 18.5 8.75H14.47V6C14.47 4.48 13.24 3.25 11.64 3.25C10.94 3.25 10.31 3.67 10.03 4.32L7.49 10.25H5.62C4.31 10.25 3.25 11.31 3.25 12.62V18.39C3.25 19.69 4.32 20.75 5.62 20.75H17.18C18.27 20.75 19.2 19.97 19.39 18.89L20.71 11.39C20.82 10.73 20.64 10.06 20.21 9.55H20.22ZM5.62 19.25C5.14 19.25 4.75 18.86 4.75 18.39V12.62C4.75 12.14 5.14 11.75 5.62 11.75H7.23V19.25H5.62ZM17.92 18.63C17.86 18.99 17.55 19.25 17.18 19.25H8.74V11.15L11.41 4.9C11.45 4.81 11.54 4.74 11.73 4.74C12.42 4.74 12.97 5.3 12.97 5.99V10.24H18.5C18.73 10.24 18.93 10.33 19.07 10.5C19.21 10.67 19.27 10.89 19.23 11.12L17.91 18.62L17.92 18.63Z");
+                }
+              }
+            })
+            .catch((error) => {
+              alert(`Upvote failed: ${error}`);
+            });
+        });
+      });
+    });
+  </script>
+{% endblock %}

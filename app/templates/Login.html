@@ -1,0 +1,238 @@
+{% extends "layout.html" %} {% block title %} Login - Access Your Account {%
+endblock %} {% block style %}
+<style>
+  .logincontainer {
+    padding-top: 50px;
+    padding-bottom: 20px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="logincontainer max-w-md mx-auto px-4">
+  <div class="">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold">Welcome back</h1>
+      <p class="text-gray-600 mt-2">Sign in to access your account</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <div class="w-full">
+        <a
+          class="w-full flex items-center justify-center space-x-2 bg-gray-900 text-white p-3 rounded-md hover:bg-gray-800 mb-6"
+          href="{{ url_for('user.github_login') }}"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 5.303 3.438 9.8 8.207 11.387.6.113.793-.26.793-.577v-2.257c-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.091-.746.082-.73.082-.73 1.205.084 1.838 1.238 1.838 1.238 1.07 1.835 2.807 1.306 3.492.998.108-.775.42-1.306.763-1.607-2.665-.304-5.467-1.333-5.467-5.932 0-1.31.469-2.381 1.237-3.22-.123-.303-.536-1.524.117-3.176 0 0 1.008-.322 3.301 1.23a11.483 11.483 0 013.006-.404c1.02.005 2.046.138 3.006.404 2.292-1.553 3.3-1.23 3.3-1.23.654 1.653.241 2.874.118 3.176.77.84 1.236 1.91 1.236 3.22 0 4.61-2.805 5.624-5.478 5.921.43.371.814 1.102.814 2.221v3.293c0 .319.192.694.8.576C20.565 21.795 24 17.298 24 12 24 5.373 18.627 0 12 0z"
+            />
+          </svg>
+          <span>Sign in with GitHub</span>
+        </a>
+
+        <div class="relative mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">Or sign in with</span>
+          </div>
+        </div>
+        <!-- Tabs for switching -->
+        <div
+          class="relative flex flex-wrap px-1.5 py-1.5 list-none rounded-md bg-slate-100 mb-6"
+        >
+          <button
+            id="user-tab"
+            class="flex-auto text-center py-2 text-sm font-medium text-slate-700 bg-white rounded-md shadow-md transition-all ease-in-out cursor-pointer"
+            onclick="showLogin('user')"
+          >
+            User Login
+          </button>
+          <button
+            id="organization-tab"
+            class="flex-auto text-center py-2 text-sm font-medium text-slate-600 bg-inherit transition-all ease-in-out cursor-pointer"
+            onclick="showLogin('organization')"
+          >
+            Organization Login
+          </button>
+        </div>
+      </div>
+
+      <!-- User Login Form -->
+      <div id="user-login" class="login-form">
+        <form
+          action="{{ url_for('user.login') }}"
+          method="POST"
+          class="space-y-6"
+        >
+          <input type="hidden" name="role" value="user" />
+          <div>
+            <label
+              for="user-email"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Email Address</label
+            >
+            <input
+              id="user-email"
+              type="email"
+              name="email"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="user-password"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Password</label
+            >
+            <input
+              id="user-password"
+              type="password"
+              name="password"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700"
+          >
+            Sign in
+          </button>
+        </form>
+        <div class="relative mt-6 mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500"
+              >Don't Have Account?
+              <a
+                href="{{ url_for('user.register') }}"
+                class="text-blue-600 hover:text-blue-500"
+                >Register</a
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Organization Login Form -->
+      <div id="organization-login" class="hidden login-form">
+        <form
+          action="{{ url_for('user.login') }}"
+          method="POST"
+          class="space-y-6"
+        >
+          <input type="hidden" name="role" value="organization" />
+          <div>
+            <label
+              for="org-email"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Organization Email</label
+            >
+            <input
+              id="org-email"
+              type="email"
+              name="email"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="org@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="org-password"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >Password</label
+            >
+            <input
+              id="org-password"
+              type="password"
+              name="password"
+              class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700"
+          >
+            Sign in
+          </button>
+        </form>
+        <div class="relative mt-6 mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500"
+              >Don't Have Account?
+              <a
+                href="{{ url_for('organization.OrganizationRegister') }}"
+                class="text-blue-600 hover:text-blue-500"
+                >Register</a
+              ></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showLogin(type) {
+    const userTab = document.getElementById("user-tab");
+    const orgTab = document.getElementById("organization-tab");
+    const userLogin = document.getElementById("user-login");
+    const orgLogin = document.getElementById("organization-login");
+
+    if (type === "user") {
+      userTab.classList.add("bg-white", "text-slate-700", "shadow-md");
+      orgTab.classList.remove("bg-white", "text-slate-700", "shadow-md");
+
+      userLogin.classList.remove("hidden");
+      orgLogin.classList.add("hidden");
+    } else {
+      orgTab.classList.add("bg-white", "text-slate-700", "shadow-md");
+      userTab.classList.remove("bg-white", "text-slate-700", "shadow-md");
+
+      orgLogin.classList.remove("hidden");
+      userLogin.classList.add("hidden");
+    }
+  }
+
+  function showLogin(role) {
+    const userLogin = document.getElementById("user-login");
+    const orgLogin = document.getElementById("organization-login");
+
+    if (role === "user") {
+      userLogin.classList.remove("hidden");
+      orgLogin.classList.add("hidden");
+    } else if (role === "organization") {
+      orgLogin.classList.remove("hidden");
+      userLogin.classList.add("hidden");
+    }
+
+    // Update the button styles
+    document
+      .getElementById("user-tab")
+      .classList.toggle("bg-white", role === "user");
+    document
+      .getElementById("organization-tab")
+      .classList.toggle("bg-white", role === "organization");
+  }
+
+  // Set default view to User Login
+  document.addEventListener("DOMContentLoaded", () => showLogin("user"));
+</script>
+{% endblock %}

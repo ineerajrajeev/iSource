@@ -13,6 +13,7 @@ from ..utils.hybrid_rag import pdf_to_documents
 from ..utils.email_notification import notifications
 from flask import Blueprint, send_from_directory
 from flask import Flask, send_file, abort
+import json
 
 
 other_bpt = Blueprint('other', __name__)
@@ -244,3 +245,38 @@ def check_notifications():
     else:
         # If there are no notifications, return an empty list
         return jsonify({"notifications": []})
+    
+@other_bpt.route('/chat')
+def chat():
+    users = [
+    {"id": "1", "name": "User 1", "is_active": True},
+    {"id": "2", "name": "User 2", "is_active": False},
+    {"id": "3", "name": "User 3", "is_active": False},
+    {"id": "4", "name": "User 4", "is_active": True},
+    ]
+
+    messages = {
+        "1": [
+            {
+                "id": "1",
+                "text": "Hello, how can I help you today?",
+                "sender": "customer",
+                "timestamp": datetime.datetime.now().isoformat(),
+            },
+            {
+                "id": "2",
+                "text": "I need assistance with my order",
+                "sender": "bot",
+                "timestamp": datetime.datetime.now().isoformat(),
+            },
+            {
+                "id": "3",
+                "text": "The delivery is delayed",
+                "sender": "customer",
+                "feedback": "Issue requires escalation",
+                "timestamp": datetime.datetime.now().isoformat(),
+            },
+        ]
+    }
+    
+    return render_template('chat.html',nav="1",users=users, messages=messages.get("1", []), messages_json=json.dumps(messages), users_json=json.dumps(users))

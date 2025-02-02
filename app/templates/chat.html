@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <div class="container mx-auto py-8 px-4">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden h-[800px] flex">
+            <!-- User List -->
+            <div class="w-64 bg-gray-50 border-r border-gray-200 h-full overflow-y-auto">
+                <div class="p-4">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Users</h2>
+                    <div class="space-y-2" id="userList">
+                        {% for user in users %}
+                        <button
+                            data-user-id="{{ user.id }}"
+                            class="user-btn w-full flex items-center p-3 rounded-lg transition-colors {% if loop.first %}bg-blue-100 text-blue-800{% else %}hover:bg-gray-100 text-gray-700{% endif %}"
+                        >
+                            <i data-lucide="user" class="w-5 h-5 mr-3"></i>
+                            <span class="flex-1 text-left">{{ user.name }}</span>
+                            {% if user.is_active %}
+                            <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                            {% endif %}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="flex-1 flex flex-col h-full">
+                <div class="border-b border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-700" id="selectedUserName">{{ users[0].name }}</h2>
+                        <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                    </div>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-4" id="chatMessages">
+                    {% for message in messages %}
+                    <div class="flex {% if message.sender == 'bot' %}justify-end{% else %}justify-start{% endif %} mb-4">
+                        <div class="max-w-[70%] {% if message.sender == 'bot' %}order-1{% else %}order-2{% endif %}">
+                            <div class="rounded-lg p-4 {% if message.sender == 'bot' %}bg-blue-100 text-blue-900{% elif message.feedback %}bg-red-100 text-red-900{% else %}bg-gray-100 text-gray-900{% endif %}">
+                                <div class="flex items-start gap-2">
+                                    <i data-lucide="message-square" class="w-5 h-5 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm">{{ message.text }}</p>
+                                        {% if message.feedback %}
+                                        <div class="mt-2 p-2 bg-white rounded text-sm text-gray-700">
+                                            Feedback: {{ message.feedback }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1 {% if message.sender == 'bot' %}text-right{% else %}text-left{% endif %}">
+                                {{ message.timestamp }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initial data
+const initialMessages = {{ messages_json|safe }};
+const users = {{ users_json|safe }};
+
+// DOM elements
+const userList = document.getElementById('userList');
+const chatMessages = document.getElementById('chatMessages');
+const selectedUserName = document.getElementById('selectedUserName');
+
+// Current state
+let selectedUserId = users[0].id;
+
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Update chat messages
+function updateChatMessages(userId) {
+    const messages = initialMessages[userId] || [];
+    chatMessages.innerHTML = messages.map(message => `
+        <div class="flex ${message.sender === 'bot' ? 'justify-end' : 'justify-start'} mb-4">
+            <div class="max-w-[70%] ${message.sender === 'bot' ? 'order-1' : 'order-2'}">
+                <div class="rounded-lg p-4 ${
+                    message.sender === 'bot' ? 'bg-blue-100 text-blue-900' : 
+                    message.feedback ? 'bg-red-100 text-red-900' : 'bg-gray-100 text-gray-900'
+                }">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="message-square" class="w-5 h-5 mt-1"></i>
+                        <div>
+                            <p class="text-sm">${message.text}</p>
+                            ${message.feedback ? `
+                                <div class="mt-2 p-2 bg-white rounded text-sm text-gray-700">
+                                    Feedback: ${message.feedback}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1 ${message.sender === 'bot' ? 'text-right' : 'text-left'}">
+                    ${new Date(message.timestamp).toLocaleTimeString()}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
+
+// Handle user selection
+userList.addEventListener('click', (e) => {
+    const userBtn = e.target.closest('.user-btn');
+    if (!userBtn) return;
+
+    // Update selected user
+    selectedUserId = userBtn.dataset.userId;
+    const user = users.find(u => u.id === selectedUserId);
+    selectedUserName.textContent = user.name;
+
+    // Update UI
+    document.querySelectorAll('.user-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-100', 'text-blue-800');
+        btn.classList.add('hover:bg-gray-100', 'text-gray-700');
+    });
+    userBtn.classList.remove('hover:bg-gray-100', 'text-gray-700');
+    userBtn.classList.add('bg-blue-100', 'text-blue-800');
+
+    // Update messages
+    updateChatMessages(selectedUserId);
+});
+</script>
+{% endblock %}

@@ -94,10 +94,13 @@ def pdf_to_documents(pdf_path, organisation_id):
         print(f"Error processing PDF: {e}")
 
 
-def hybrid_search(query, organisation_id, top_k=3, score_threshold=0.5):
+def hybrid_search(query, organisation_id, top_k=3, score_threshold=0):
+    # Check if the index exists
     if not es.indices.exists(index=index_name):
         print(f"Index '{index_name}' does not exist.")
         return ""
+    else:
+        print(f"Index '{index_name}' found.")
 
     # BM25 Search
     bm25_query = {
@@ -120,14 +123,21 @@ def hybrid_search(query, organisation_id, top_k=3, score_threshold=0.5):
     # Semantic Search
     query_embedding = embedding_model.encode(query).tolist()
     semantic_query = {
-        "query": {"bool": {"filter": [{"term": {"organisation_id": organisation_id}}]}},
-        "knn": {
-            "field": "embedding",
-            "query_vector": query_embedding,
-            "k": top_k,
-            "num_candidates": 50
+        "query": {
+            "script_score": {
+                "query": {
+                    "bool": {
+                        "filter": [{"term": {"organisation_id": organisation_id}}]
+                    }
+                },
+                "script": {
+                    "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                    "params": {"query_vector": query_embedding}
+                }
+            }
         }
     }
+
     try:
         semantic_response = es.search(index=index_name, body=semantic_query, size=top_k)
         semantic_results = {
@@ -137,15 +147,41 @@ def hybrid_search(query, organisation_id, top_k=3, score_threshold=0.5):
         print(f"Semantic search failed: {e}")
         semantic_results = {}
 
-    # Fuse Scores
+    # Fuse Scores (assuming reciprocal_rank_fusion returns a dict mapping doc_id to a fused score)
     fused_scores = reciprocal_rank_fusion(bm25_results, semantic_results)
     sorted_results = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
+    print("Fused Scores:", fused_scores)
+    print("Sorted Results:", sorted_results)
 
-    # Filter results
+    # print("sorted_results", sorted_results)
+
+    # # Collect doc IDs that meet the score threshold
+    valid_doc_ids = [doc_id for doc_id, score in sorted_results]
+    # if not valid_doc_ids:
+    #     print("No documents passed the score threshold.")
+    #     return ""
+
+    # Retrieve documents in bulk using mget.
+    # (If your mapping disables _source, replace _source_includes with stored_fields and adjust accordingly.)
+    try:
+        docs_response = es.mget(
+            index=index_name,
+            body={"ids": valid_doc_ids},
+            _source_includes=["text"]
+        )
+    except Exception as e:
+        print(f"Error fetching documents: {e}")
+        return ""
+
+    # Extract the "text" field from each returned document.
     result_texts = []
-    for doc_id, score in sorted_results:
-        if score >= score_threshold:  # Only include relevant results
-            doc = es.get(index=index_name, id=doc_id, _source_includes=["text"])
-            result_texts.append(doc["_source"]["text"])
+    for doc in docs_response.get("docs", []):
+        # Make sure _source exists and contains "text"
+        source = doc.get("_source", {})
+        text = source.get("text")
+        if text:
+            result_texts.append(text)
 
-    return " ".join(result_texts) if result_texts else ""
+    final_results = " ".join(result_texts) if result_texts else ""
+    print(f"Final Results: {final_results}")
+    return final_results

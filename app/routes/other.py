@@ -248,35 +248,37 @@ def check_notifications():
     
 @other_bpt.route('/chat')
 def chat():
+    backend={'feedback': 'nothing new', 'messageId': 'msg_1738526396414_84nsy8dre', 'message': 'Chatbot Query\nthis', 'conversation': [{'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738526351890_jjd28h9jw', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Hello! How can I help you today?', 'messageId': 'msg_1738526355834_5gd181q2e', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'on', 'messageId': 'msg_1738526385624_gxmfhamj7', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'This context does not mention anything about chatbots. So I cannot answer this question from the provided context.', 'messageId': 'msg_1738526389457_tkizdkbuy', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'this', 'messageId': 'msg_1738526392438_c8uqj30jc', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Chatbot Query\nthis', 'messageId': 'msg_1738526396414_84nsy8dre', 'timestamp': '01:29 AM'}]}
     users = [
     {"id": "1", "name": "User 1", "is_active": True},
     {"id": "2", "name": "User 2", "is_active": False},
     {"id": "3", "name": "User 3", "is_active": False},
     {"id": "4", "name": "User 4", "is_active": True},
     ]
+    messages=backend['conversation']
 
-    messages = {
-        "1": [
-            {
-                "id": "1",
-                "text": "Hello, how can I help you today?",
-                "sender": "customer",
-                "timestamp": datetime.datetime.now().isoformat(),
-            },
-            {
-                "id": "2",
-                "text": "I need assistance with my order",
-                "sender": "bot",
-                "timestamp": datetime.datetime.now().isoformat(),
-            },
-            {
-                "id": "3",
-                "text": "The delivery is delayed",
-                "sender": "customer",
-                "feedback": "Issue requires escalation",
-                "timestamp": datetime.datetime.now().isoformat(),
-            },
-        ]
-    }
+    # messages = {
+    #     "1": [
+    #         {
+    #             "id": "1",
+    #             "text": "Hello, how can I help you today?",
+    #             "sender": "customer",
+    #             "timestamp": datetime.datetime.now().isoformat(),
+    #         },
+    #         {
+    #             "id": "2",
+    #             "text": "I need assistance with my order",
+    #             "sender": "bot",
+    #             "timestamp": datetime.datetime.now().isoformat(),
+    #         },
+    #         {
+    #             "id": "3",
+    #             "text": "The delivery is delayed",
+    #             "sender": "customer",
+    #             "feedback": "Issue requires escalation",
+    #             "timestamp": datetime.datetime.now().isoformat(),
+    #         },
+    #     ]
+    # }
     
-    return render_template('chat.html',nav="1",users=users, messages=messages.get("1", []), messages_json=json.dumps(messages), users_json=json.dumps(users))
+    return render_template('chat.html',nav="1",users=users, messages=messages,backend=backend, messages_json=json.dumps(messages), users_json=json.dumps(users))

@@ -88,169 +88,184 @@
         </button>
       </div>
     </div>
-
-    {% block script %}
+    
+    {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        hljs.highlightAll();
-        loadConversation();
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    hljs.highlightAll();
+    loadConversation();
+  });
+
+  function generateMessageId() {
+    return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  function toggleChatbot() {
+    const overlay = document.getElementById("chatbot-overlay");
+    const isHidden = overlay.classList.contains("hidden");
+    if (isHidden) {
+      overlay.classList.remove("hidden");
+      overlay.style.width = "100%";
+      overlay.classList.add("md:w-[80%]", "lg:w-[50%]");
+    } else {
+      overlay.classList.remove("md:w-[80%]", "lg:w-[50%]");
+      overlay.style.width = "0";
+      setTimeout(() => {
+        overlay.classList.add("hidden");
+      }, 300);
+    }
+  }
+
+  function handleKeyPress(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function showTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    indicator.classList.remove("hidden");
+  }
+
+  function hideTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    indicator.classList.add("hidden");
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("chat-input");
+    const message = input.value.trim();
+    if (message !== "") {
+      const messageId = generateMessageId();
+      const currentTime = getCurrentTime();  // Get current time for the message
+      appendMessage("You", message, messageId, currentTime);  // Pass current time
+      saveMessage("You", message, messageId, currentTime);  // Pass current time
+
+      input.value = "";
+      showTypingIndicator();
+
+      const conversation = getConversation();
+
+      fetch("/api/chatbot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ conversation }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          hideTypingIndicator();
+          const botMessageId = generateMessageId();
+          const botTime = getCurrentTime();  // Capture bot response time
+
+          if (data.reply) {
+            appendMessage("Bot", data.reply, botMessageId, botTime);  // Pass bot's time
+            saveMessage("Bot", data.reply, botMessageId, botTime);  // Save bot's message with time
+          } else if (data.error) {
+            appendMessage("Bot", `Error: ${data.error}`, botMessageId, botTime);
+            saveMessage("Bot", `Error: ${data.error}`, botMessageId, botTime);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          hideTypingIndicator();
+          const errorMessageId = generateMessageId();
+          appendMessage("Bot", "An error occurred.", errorMessageId, getCurrentTime());
+          saveMessage("Bot", "An error occurred.", errorMessageId, getCurrentTime());
+        });
+    }
+  }
+
+  function appendMessage(sender, message, messageId, timestamp) {
+    const content = document.getElementById("chatbot-content");
+    const messageContainer = document.createElement("div");
+
+    if (sender === "You") {
+      messageContainer.classList.add("flex", "justify-end");
+      messageContainer.innerHTML = `
+        <div class="max-w-[70%] bg-blue-500 text-white rounded-lg p-3 mb-2 shadow-md" data-message-id="${messageId}">
+          <p class="text-sm font-semibold mb-1">You</p>
+          <p class="text-sm">${message}</p>
+          <span class="text-xs text-gray-400 mt-1">${timestamp}</span>
+        </div>
+      `;
+    } else {
+      messageContainer.classList.add("flex", "justify-start");
+      messageContainer.innerHTML = `
+        <div class="max-w-[70%] bg-white text-gray-700 rounded-lg pt-3 pl-3 pr-3 pb-1 shadow-md" data-message-id="${messageId}">
+          <p class="text-sm font-semibold mb-1">Bot</p>
+          <p class="text-sm">${message}</p>
+          <span class="text-xs text-gray-400 mt-1">${timestamp}</span>
+          <div class="flex justify-end mt-2">
+            <button 
+              class="text-xs text-blue-500 hover:underline" 
+              onclick="handleNotSatisfied('${messageId}')">
+              Not Satisfied?
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    content.appendChild(messageContainer);
+    content.scrollTop = content.scrollHeight;
+  }
+
+  function saveMessage(sender, message, messageId, timestamp) {
+    let conversation = getConversation();
+    conversation.push({ sender, message, messageId, timestamp });
+    localStorage.setItem("conversation", JSON.stringify(conversation));
+  }
+
+  function handleNotSatisfied(messageId) {
+    const feedback = prompt("Please help us improve. What was unsatisfactory about this response?");
+    
+    if (feedback) {
+      const conversation = getConversation();
+      const targetMessage = conversation.find(msg => msg.messageId === messageId);
+      
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          feedback,
+          messageId,
+          message: targetMessage ? targetMessage.message : "",
+          conversation: conversation
+        })
+      })
+      .then(response => response.ok && alert("Thank you for your feedback!"))
+      .catch(error => {
+        console.error("Feedback error:", error);
+        alert("Feedback submission failed. Please try later.");
       });
+    }
+  }
 
-      function generateMessageId() {
-        return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      }
+  function getConversation() {
+    return JSON.parse(localStorage.getItem("conversation")) || [];
+  }
 
-      function toggleChatbot() {
-        const overlay = document.getElementById("chatbot-overlay");
-        const isHidden = overlay.classList.contains("hidden");
-        if (isHidden) {
-          overlay.classList.remove("hidden");
-          overlay.style.width = "100%";
-          overlay.classList.add("md:w-[80%]", "lg:w-[50%]");
-        } else {
-          overlay.classList.remove("md:w-[80%]", "lg:w-[50%]");
-          overlay.style.width = "0";
-          setTimeout(() => {
-            overlay.classList.add("hidden");
-          }, 300);
-        }
-      }
+  function loadConversation() {
+    const conversation = getConversation();
+    conversation.forEach((msg) => appendMessage(msg.sender, msg.message, msg.messageId, msg.timestamp));
+  }
 
-      function handleKeyPress(event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          sendMessage();
-        }
-      }
+  document.getElementById("chatbot-toggle").addEventListener("click", toggleChatbot);
+</script>
 
-      function showTypingIndicator() {
-        const indicator = document.getElementById("typing-indicator");
-        indicator.classList.remove("hidden");
-      }
-
-      function hideTypingIndicator() {
-        const indicator = document.getElementById("typing-indicator");
-        indicator.classList.add("hidden");
-      }
-
-      function sendMessage() {
-        const input = document.getElementById("chat-input");
-        const message = input.value.trim();
-        if (message !== "") {
-          const messageId = generateMessageId();
-          appendMessage("You", message, messageId);
-          saveMessage("You", message, messageId);
-
-          input.value = "";
-          showTypingIndicator();
-
-          const conversation = getConversation();
-
-          fetch("/api/chatbot", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ conversation }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              hideTypingIndicator();
-              const botMessageId = generateMessageId();
-              if (data.reply) {
-                appendMessage("Bot", data.reply, botMessageId);
-                saveMessage("Bot", data.reply, botMessageId);
-              } else if (data.error) {
-                appendMessage("Bot", `Error: ${data.error}`, botMessageId);
-                saveMessage("Bot", `Error: ${data.error}`, botMessageId);
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              hideTypingIndicator();
-              const errorMessageId = generateMessageId();
-              appendMessage("Bot", "An error occurred.", errorMessageId);
-              saveMessage("Bot", "An error occurred.", errorMessageId);
-            });
-        }
-      }
-
-      function appendMessage(sender, message, messageId) {
-        const content = document.getElementById("chatbot-content");
-        const messageContainer = document.createElement("div");
-
-        if (sender === "You") {
-          messageContainer.classList.add("flex", "justify-end");
-          messageContainer.innerHTML = `
-            <div class="max-w-[70%] bg-blue-500 text-white rounded-lg p-3 mb-2 shadow-md" data-message-id="${messageId}">
-              <p class="text-sm font-semibold mb-1">You</p>
-              <p class="text-sm">${message}</p>
-            </div>
-          `;
-        } else {
-          messageContainer.classList.add("flex", "justify-start");
-          messageContainer.innerHTML = `
-            <div class="max-w-[70%] bg-white text-gray-700 rounded-lg pt-3 pl-3 pr-3 pb-1 shadow-md" data-message-id="${messageId}">
-              <p class="text-sm font-semibold mb-1">Bot</p>
-              <p class="text-sm">${message}</p>
-              <div class="flex justify-end mt-2">
-                <button 
-                  class="text-xs text-blue-500 hover:underline" 
-                  onclick="handleNotSatisfied('${messageId}')">
-                  Not Satisfied?
-                </button>
-              </div>
-            </div>
-          `;
-        }
-
-        content.appendChild(messageContainer);
-        content.scrollTop = content.scrollHeight;
-      }
-
-      function saveMessage(sender, message, messageId) {
-        let conversation = getConversation();
-        conversation.push({ sender, message, messageId });
-        localStorage.setItem("conversation", JSON.stringify(conversation));
-      }
-
-      function handleNotSatisfied(messageId) {
-        const feedback = prompt("Please help us improve. What was unsatisfactory about this response?");
-        
-        if (feedback) {
-            const conversation = getConversation();
-            const targetMessage = conversation.find(msg => msg.messageId === messageId);
-            
-            fetch("/api/feedback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    feedback,
-                    messageId,
-                    message: targetMessage ? targetMessage.message : "",
-                    conversation: conversation
-                })
-            })
-            .then(response => response.ok && alert("Thank you for your feedback!"))
-            .catch(error => {
-                console.error("Feedback error:", error);
-                alert("Feedback submission failed. Please try later.");
-            });
-        }
-      }
-
-      function getConversation() {
-        return JSON.parse(localStorage.getItem("conversation")) || [];
-      }
-
-      function loadConversation() {
-        const conversation = getConversation();
-        conversation.forEach((msg) => appendMessage(msg.sender, msg.message, msg.messageId));
-      }
-
-      document.getElementById("chatbot-toggle").addEventListener("click", toggleChatbot);
-    </script>
     {% endblock %}
   </body>
 </html>

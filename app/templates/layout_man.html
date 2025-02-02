@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %} {% endblock %}</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Flowbite CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+
+    {% block style %} {% endblock %}
+  </head>
+  <body class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
+    {% include 'UserNavbar.html' %}
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          {% if message[1] == "success" %}
+            <div class="bg-green-100 border border-green-100 text-green-700 px-4 py-4 rounded relative alert" role="alert">
+              <span class="block sm:inline">{{ message[0] }}</span>
+              <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" data-dismiss="alert" aria-label="Close" onclick="this.parentNode.remove()">
+                <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <title>Close</title>
+                  <path d="M14.348 5.652a.5.5 0 0 1 0 .707L10.06 10l4.288 4.646a.5.5 0 0 1-.708.708L9.353 10l-4.647 4.354a.5.5 0 1 1-.708-.707L8.646 10 4 5.348a.5.5 0 1 1 .708-.708L10 9.354l4.354-4.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
+              </button>
+            </div>
+          {% else %}
+            <div class="bg-red-100 border border-red-100 text-red-700 px-4 py-4 rounded relative alert" role="alert">
+              <span class="block sm:inline">{{ message }}</span>
+              <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" data-dismiss="alert" aria-label="Close" onclick="this.parentNode.remove()">
+                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <title>Close</title>
+                  <path d="M14.348 5.652a.5.5 0 0 1 0 .707L10.06 10l4.288 4.646a.5.5 0 0 1-.708.708L9.353 10l-4.647 4.354a.5.5 0 1 1-.708-.707L8.646 10 4 5.348a.5.5 0 1 1 .708-.708L10 9.354l4.354-4.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
+              </button>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %} {% endblock %}
+
+    
+    
+    {% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    
+    {% endblock %}
+  </body>
+</html>

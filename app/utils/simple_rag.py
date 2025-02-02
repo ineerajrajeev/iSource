@@ -51,5 +51,7 @@ def search_answer(query, organisation_id, top_k=3):
             "answer": hit["_source"]["answer"],      # Explicitly extract answer
             "score": hit["_score"]
         })
+    
+    print(results)
 
     return results

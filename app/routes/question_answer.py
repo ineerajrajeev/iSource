@@ -317,6 +317,8 @@ def ask_question_function(app, question_id, org_id, title, body, tags):
             # 1) Perform hybrid and simple RAG search
             hybrid_context = hybrid_search(f"{title} {body}", org_id, score_threshold=0.5)
             simple_context = search_answer(f"{title} {body}", org_id)
+            print(hybrid_context)
+            print(simple_context)
 
             # 2) If no context is found, fetch additional information from Wikipedia
             wiki_context = ""
@@ -343,7 +345,7 @@ def ask_question_function(app, question_id, org_id, title, body, tags):
             # 4) Run the chain with Gemini
             response = gemini_chain.run(
                 context=combined_context,
-                question=f"{title}\n{body} answer the last question in json"
+                question=f"{title}\n{body}"
             )
             print(response)
 
@@ -400,6 +402,7 @@ def chatbot():
     try:
         data = request.get_json()
         conversation = data.get('conversation', [])
+        print(data)
         if not conversation:
             return jsonify({"error": "No conversation provided"}), 400
 

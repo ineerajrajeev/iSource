@@ -70,7 +70,10 @@ This multi-faceted approach ensures that customers receive accurate and timely s
 
 The overall application workflow is designed to provide a seamless experience for users and admins alike. Below is an illustrative diagram of the high-level flow:
 
-![Application Flow Diagram](docs/images/application-flow-diagram.png)
+![orgwork](https://github.com/user-attachments/assets/7955a360-928c-4f57-8921-c85314930200)
+![userwoek](https://github.com/user-attachments/assets/06f9a53e-392f-4093-89bc-2a28b3ed088b)
+![modwork](https://github.com/user-attachments/assets/c129e681-7b5a-4c1d-9a12-03f7708d7115)
+![hybridrag](https://github.com/user-attachments/assets/2d9ee6a2-7df1-4607-8863-027ef3ceaa8c)
 
 **Description:**
 
@@ -87,8 +90,6 @@ The overall application workflow is designed to provide a seamless experience fo
 
 The RAG component is a critical element that fetches and synthesizes data to generate accurate responses. Here’s a simplified flow of how RAG works:
 
-![RAG Operation Flow Diagram](docs/images/rag-operation-flow-diagram.png)
-
 **Description:**
 
 1. **Query Reception:** The user question is received by the chatbot.
@@ -103,9 +104,6 @@ The RAG component is a critical element that fetches and synthesizes data to gen
 ### Hybrid RAG Flow
 
 For scenarios requiring a balance between external API calls and local computation, the Hybrid RAG flow is utilized:
-
-![Hybrid RAG Flow Diagram](docs/images/hybrid-rag-flow-diagram.png)
-![hybridrag](https://github.com/user-attachments/assets/2d9ee6a2-7df1-4607-8863-027ef3ceaa8c)
 
 **Description:**
 
@@ -128,7 +126,7 @@ For scenarios requiring a balance between external API calls and local computati
 - **AI Integration:**
   - [Gemini API](https://www.example.com/gemini-api) for high-quality response generation.
   - On-device LLM models for local processing and fallback.
-- **Frontend:** Standard HTML/CSS/JS (or your preferred frontend framework) served by Flask.
+- **Frontend:** Standard HTML,CSS,JS served by Flask.
 - **Additional Tools:** 
   - Docker (optional) for containerized deployments.
   - Python 3.8+ for backend development.

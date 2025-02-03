@@ -98,6 +98,7 @@ def register(code=None, email=None):
         username=request.form.get('username')
         invitecode=request.form.get('invitecode')
         print(firstname,lastname,email,password,confirmpassword,username,invitecode)
+        print(Invites.query.filter_by(code=invitecode).first())
         role=Invites.query.filter_by(code=invitecode).first().role
 
         if username is None or password is None or email is None or  firstname is None or lastname is None or invitecode is None:

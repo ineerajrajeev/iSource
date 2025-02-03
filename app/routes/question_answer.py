@@ -1,6 +1,6 @@
 import datetime
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from ..models import db, User, Questions, Plus_ones, Answers, Votes, Keywords,Organizations
+from ..models import db, User, Questions, Plus_ones, Answers, Votes, Keywords,Organizations,CustomerSupport
 import random
 from langchain_community.llms.ollama import Ollama
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -446,6 +446,10 @@ def chatbot():
 
 @QA_bpt.route('/api/feedback', methods=['POST'])
 def feedback():
+    print(session.get('user_id'))
+    if session.get('user_id')==None:
+        return jsonify({"error": "User not logged in"}), 400
+
     """
     Feedback endpoint for chatbot responses.
     """
@@ -459,19 +463,40 @@ def feedback():
                 i['feedback']=data['feedback']
             list.append(i)
         user=session.get('user_id')
+        customersupport=CustomerSupport(userid=user,conversation_json=list,date=datetime.datetime.now(),solution="pending")
+        db.session.add(customersupport)
+        db.session.commit()
         messages[user]=list
-        response = data.get('response')
+        conversation = data.get('conversation')
         feedback = data.get('feedback')
+
+        
+
         print(messages)
 
-        if not response or not feedback:
+        if not conversation or not feedback:
             return jsonify({"error": "Missing response or feedback"}), 400
 
         # Process the feedback (e.g., update the model, etc.)
-        print(f"Feedback received for response: {response}, feedback: {feedback}")
+        # print(f"Feedback received for response: {conversation}, feedback: {feedback}")
 
         return jsonify({"message": "Feedback received successfully"}), 200
 
     except Exception as e:
         print(f"Error in feedback API: {e}")
         return jsonify({"error": "An error occurred while processing the feedback"}), 500
+
+
+@QA_bpt.route('/api/demo')
+def demo():
+    customers=CustomerSupport.query.all()
+    for customer in customers:
+        for question in customer.conversation_json:
+            # print(question)
+            try:
+                if question['feedback']:
+                    print('feedback: '+question['feedback'])
+                    print('message:'+ question['message'])
+            except:
+                continue
+    return jsonify({"message": "Feedback received successfully"}), 200

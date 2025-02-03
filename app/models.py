@@ -384,4 +384,11 @@ class Docs(db.Model):
     #     db.session.add(admin)
     #     db.session.commit()
 
+class CustomerSupport(db.Model):
+    __tablename__ = 'customersupport'
+    supportid = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False, unique=True)
+    userid = db.Column(db.Integer, db.ForeignKey('user.userid'), nullable=False)
+    conversation_json = db.Column(db.JSON, nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    solution = db.Column(db.String(1024), nullable=False)
     

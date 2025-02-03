@@ -246,7 +246,10 @@
           conversation: conversation
         })
       })
-      .then(response => response.ok && alert("Thank you for your feedback!"))
+      .then(response => response.status === 200 
+    ? alert("Thank you for your feedback!") 
+    : alert("Login to share feedback.")
+)
       .catch(error => {
         console.error("Feedback error:", error);
         alert("Feedback submission failed. Please try later.");

@@ -1,6 +1,6 @@
 import datetime
 from flask import render_template, request, redirect, url_for, flash, session, send_file, jsonify
-from ..models import db, Plus_ones, Organizations,Docs
+from ..models import db, Plus_ones, Organizations,Docs,CustomerSupport,User
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -279,23 +279,28 @@ def chat():
     #         },
     #     ]
     # }
+    messages = {}
+    requests=CustomerSupport.query.all()
+    for request in requests:
+        messages[str(request.supportid)]=request.conversation_json
+    # print(messages)
 
-    messages = {
-        "1": [
-             {
-                "id": "1",
-                "message": "Hello, how can I help you today?",
-                "sender": "You",
-                "timestamp": datetime.datetime.now().isoformat(),
-            },
-            {
-                'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738580602618_ckielhetm', 'timestamp': '04:33 PM'
-            }, 
-            {
-                'sender': 'Bot', 'message': "I'm sorry, but I cannot answer your question based on the context you provided. The document focuses on connecting to the internet and does not mention anything about a chatbot.", 'messageId': 'msg_1738580610469_7v1jgepuf', 'timestamp': '04:33 PM'
-            }, 
-            {
-                'sender': 'You', 'message': 'hello', 'messageId': 'msg_1738580618267_osh96mahf', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': "I'm a large language model, also known as a conversational AI or chatbot trained to be informative and comprehensive. I'm trained on a massive amount of text data, and I'm able to communicate and generate human-like text in response to a wide range of prompts and questions. For example, I can provide summaries of factual topics or create stories.\n\nHow can I help you today?", 'messageId': 'msg_1738580622952_j8yhtl9at', 'timestamp': '04:33 PM', 'feedback': 'what is this'}, {'sender': 'You', 'message': 'what can you do', 'messageId': 'msg_1738580634384_g6zn2gwpr', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': 'I am a helpful and accurate AI assistant. I can answer your questions about the iMac G5 computer, including its features and capabilities. I can also provide information on troubleshooting, installing additional components, and connecting to the internet.', 'messageId': 'msg_1738580639605_fgs272q7q', 'timestamp': '04:33 PM'}]}
+    users=[]
+    for request in requests:
+        users.append({"id":str(request.supportid),"name":User.query.filter_by(userid=request.userid).first().firstname+" "+User.query.filter_by(userid=request.userid).first().lastname,"is_active":True})
+    # print(users)
+
+
+    # messages = {
+    #     "1": [
+    #         {
+    #             'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738580602618_ckielhetm', 'timestamp': '04:33 PM'
+    #         }, 
+    #         {
+    #             'sender': 'Bot', 'message': "I'm sorry, but I cannot answer your question based on the context you provided. The document focuses on connecting to the internet and does not mention anything about a chatbot.", 'messageId': 'msg_1738580610469_7v1jgepuf', 'timestamp': '04:33 PM'
+    #         }, 
+    #         {
+    #             'sender': 'You', 'message': 'hello', 'messageId': 'msg_1738580618267_osh96mahf', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': "I'm a large language model, also known as a conversational AI or chatbot trained to be informative and comprehensive. I'm trained on a massive amount of text data, and I'm able to communicate and generate human-like text in response to a wide range of prompts and questions. For example, I can provide summaries of factual topics or create stories.\n\nHow can I help you today?", 'messageId': 'msg_1738580622952_j8yhtl9at', 'timestamp': '04:33 PM', 'feedback': 'what is this'}, {'sender': 'You', 'message': 'what can you do', 'messageId': 'msg_1738580634384_g6zn2gwpr', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': 'I am a helpful and accurate AI assistant. I can answer your questions about the iMac G5 computer, including its features and capabilities. I can also provide information on troubleshooting, installing additional components, and connecting to the internet.', 'messageId': 'msg_1738580639605_fgs272q7q', 'timestamp': '04:33 PM'}]}
     
 
     return render_template('chat.html',nav="1",users=users, messages=messages, messages_json=json.dumps(messages), users_json=json.dumps(users))

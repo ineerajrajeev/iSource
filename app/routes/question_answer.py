@@ -24,6 +24,7 @@ from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 import os
 
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Gemini LLM initialization
@@ -422,8 +423,6 @@ def chatbot():
         org_id = 1
         tags = ["chatbot"]  # Example tag
 
-        print(user_message)
-
         # Call ask_question_function, using the user message as 'body'
         ai_response = ask_question_function(
             app=current_app,
@@ -487,16 +486,64 @@ def feedback():
         return jsonify({"error": "An error occurred while processing the feedback"}), 500
 
 
+# @QA_bpt.route('/api/demo')
+# def demo():
+#     customers=CustomerSupport.query.all()
+
+#     customers[0]
+#     for customer in customers:
+#         for question in customer.conversation_json:
+#             # print(question)
+#             try:
+#                 if question['feedback']:
+#                     print('message:'+ question['message'])
+#                     print('feedback: '+question['feedback'])
+#             except:
+#                 continue
+#     return jsonify({"message": "Feedback received successfully"}), 200
+
+# @QA_bpt.route('/api/demo')
+# def demo():
+#     customers=CustomerSupport.query.all()
+
+#     customers[0]
+#     for customer in customers:
+#         question=customer.conversation_json
+#         print('user message:'+ question[3-1]['message'])
+#         print('chatbot response: '+question[3]['message'])
+#         print('feedback: '+question[3]['feedback'])
+#         # for i in range(0,len(customer.conversation_json)):
+#         #     # print(question)
+#         #     try:
+#         #         if question[i]['feedback']:
+#         #             print('user message:'+ question[i-1]['message'])
+#         #             print('chatbot response: '+question[i]['message'])
+#         #             print('feedback: '+question[i]['feedback'])
+#         #     except:
+#         #         continue
+#     return jsonify({"message": "Feedback received successfully"}), 200
+
+
+# index_qa_pairs(
+#         {"question": f"{new_question.question_title} {new_question.question_detail}", "answer": new_question.official_answer},
+#         User.query.filter_by(userid=session.get('user_id')).first().organization,
+#         Answers.query.filter_by(answerid=answerid).first().questionid
+#     )
+
 @QA_bpt.route('/api/demo')
 def demo():
     customers=CustomerSupport.query.all()
+
+    customers[0]
     for customer in customers:
-        for question in customer.conversation_json:
-            # print(question)
+        question=customer.conversation_json
+        for i in range(0,len(customer.conversation_json)):
             try:
-                if question['feedback']:
-                    print('feedback: '+question['feedback'])
-                    print('message:'+ question['message'])
+                if question[i]['feedback']:
+                    print('user message:'+ question[i-1]['message'])
+                    print('chatbot response: '+question[i]['message'])
+                    print('feedback: '+question[i]['feedback'])
+        
             except:
                 continue
     return jsonify({"message": "Feedback received successfully"}), 200

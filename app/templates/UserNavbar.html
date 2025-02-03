@@ -99,7 +99,33 @@
                       >All questions</a
                     >
                   </li>
+                  <li>
+                    <a href="{{ url_for('other.chatorg') }}"
+                      >Chat Feedback</a
+                    >
+                  </li>
                 {% elif nav=='Moderator Dashboard' %}
+                  <li>
+                    <a href="{{ url_for('question_and_answer.questions')}}"
+                      >All Questions</a
+                    >
+                  </li>
+                  <li>
+                    <a href="{{ url_for('user.myquestions')}}">Questions</a>
+                  </li>
+                  <li>
+                    <a href="{{ url_for('question_and_answer.ask_question')}}"
+                      >Ask Questions</a
+                    >
+                  </li>
+
+                  <li>
+                    <a href="{{ url_for('other.chat') }}">Chat Feedback</a>
+                  </li>
+                {% elif nav=='Chat Feedback'%}
+                  <li>
+                    <a href="{{ url_for('moderator.moderator_dashboard') }}">Dashboard</a>
+                  </li>
                   <li>
                     <a href="{{ url_for('question_and_answer.questions')}}"
                       >All Questions</a
@@ -246,7 +272,7 @@
             {% elif nav=='User Dashboard' or nav=='Ask Question' or
             nav=='Organization Dashboard' or nav=='User Manager' or nav=='All
             Questions' or nav=='Question' or nav.startswith('Question ') or
-            nav=='Moderator Dashboard' or nav=='All Questions' or nav=='My Questions' or nav=='Moderate Questions' %}
+            nav=='Moderator Dashboard' or nav=='All Questions' or nav=='My Questions' or nav=='Moderate Questions' or nav=='Chat Feedback' %}
             <a
               href="{{ url_for('other.logout') }}"
               class="signin px-4 py-2 text-gray-700 hover:text-gray-900"

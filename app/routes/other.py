@@ -14,6 +14,9 @@ from ..utils.email_notification import notifications
 from flask import Blueprint, send_from_directory
 from flask import Flask, send_file, abort
 import json
+import google.generativeai as genai
+from ..utils.simple_rag import index_qa_pairs
+import random
 
 
 other_bpt = Blueprint('other', __name__)
@@ -247,6 +250,7 @@ def check_notifications():
         return jsonify({"notifications": []})
     
 @other_bpt.route('/chat')
+@role_required(['moderator','organization'])
 def chat():
     # backend={'feedback': 'nothing new', 'messageId': 'msg_1738526396414_84nsy8dre', 'message': 'Chatbot Query\nthis', 'conversation': [{'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738526351890_jjd28h9jw', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Hello! How can I help you today?', 'messageId': 'msg_1738526355834_5gd181q2e', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'on', 'messageId': 'msg_1738526385624_gxmfhamj7', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'This context does not mention anything about chatbots. So I cannot answer this question from the provided context.', 'messageId': 'msg_1738526389457_tkizdkbuy', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'this', 'messageId': 'msg_1738526392438_c8uqj30jc', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Chatbot Query\nthis', 'messageId': 'msg_1738526396414_84nsy8dre', 'timestamp': '01:29 AM'}]}
     users = [
@@ -255,32 +259,8 @@ def chat():
     {"id": "3", "name": "User 3", "is_active": False},
     {"id": "4", "name": "User 4", "is_active": True},
     ]
-
-    # messages = {
-    #     "1": [
-    #         {
-    #             "id": "1",
-    #             "text": "Hello, how can I help you today?",
-    #             "sender": "You",
-    #             "timestamp": datetime.datetime.now().isoformat(),
-    #         },
-    #         {
-    #             "id": "2",
-    #             "text": "I need assistance with my order",
-    #             "sender": "Bot",
-    #             "timestamp": datetime.datetime.now().isoformat(),
-    #         },
-    #         {
-    #             "id": "3",
-    #             "text": "The delivery is delayed",
-    #             "sender": "You",
-    #             "feedback": "Issue requires escalation",
-    #             "timestamp": datetime.datetime.now().isoformat(),
-    #         },
-    #     ]
-    # }
     messages = {}
-    requests=CustomerSupport.query.all()
+    requests=CustomerSupport.query.filter_by(solution="pending").all()
     for request in requests:
         messages[str(request.supportid)]=request.conversation_json
     # print(messages)
@@ -291,16 +271,51 @@ def chat():
     # print(users)
 
 
-    # messages = {
-    #     "1": [
-    #         {
-    #             'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738580602618_ckielhetm', 'timestamp': '04:33 PM'
-    #         }, 
-    #         {
-    #             'sender': 'Bot', 'message': "I'm sorry, but I cannot answer your question based on the context you provided. The document focuses on connecting to the internet and does not mention anything about a chatbot.", 'messageId': 'msg_1738580610469_7v1jgepuf', 'timestamp': '04:33 PM'
-    #         }, 
-    #         {
-    #             'sender': 'You', 'message': 'hello', 'messageId': 'msg_1738580618267_osh96mahf', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': "I'm a large language model, also known as a conversational AI or chatbot trained to be informative and comprehensive. I'm trained on a massive amount of text data, and I'm able to communicate and generate human-like text in response to a wide range of prompts and questions. For example, I can provide summaries of factual topics or create stories.\n\nHow can I help you today?", 'messageId': 'msg_1738580622952_j8yhtl9at', 'timestamp': '04:33 PM', 'feedback': 'what is this'}, {'sender': 'You', 'message': 'what can you do', 'messageId': 'msg_1738580634384_g6zn2gwpr', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': 'I am a helpful and accurate AI assistant. I can answer your questions about the iMac G5 computer, including its features and capabilities. I can also provide information on troubleshooting, installing additional components, and connecting to the internet.', 'messageId': 'msg_1738580639605_fgs272q7q', 'timestamp': '04:33 PM'}]}
-    
+    return render_template('chat.html',nav="Chat Feedback",users=users, messages=messages, messages_json=json.dumps(messages), users_json=json.dumps(users))
 
-    return render_template('chat.html',nav="1",users=users, messages=messages, messages_json=json.dumps(messages), users_json=json.dumps(users))
+
+@other_bpt.route('/chatorg')
+@role_required(['organization'])
+def chatorg():
+    # backend={'feedback': 'nothing new', 'messageId': 'msg_1738526396414_84nsy8dre', 'message': 'Chatbot Query\nthis', 'conversation': [{'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738526351890_jjd28h9jw', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Hello! How can I help you today?', 'messageId': 'msg_1738526355834_5gd181q2e', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'on', 'messageId': 'msg_1738526385624_gxmfhamj7', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'This context does not mention anything about chatbots. So I cannot answer this question from the provided context.', 'messageId': 'msg_1738526389457_tkizdkbuy', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'this', 'messageId': 'msg_1738526392438_c8uqj30jc', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Chatbot Query\nthis', 'messageId': 'msg_1738526396414_84nsy8dre', 'timestamp': '01:29 AM'}]}
+    
+    messages = {}
+    requests=CustomerSupport.query.filter_by(solution="uplift").all()
+    for request in requests:
+        messages[str(request.supportid)]=request.conversation_json
+    # print(messages)
+
+    users=[]
+    for request in requests:
+        users.append({"id":str(request.supportid),"name":User.query.filter_by(userid=request.userid).first().firstname+" "+User.query.filter_by(userid=request.userid).first().lastname,"is_active":True})
+    # print(users)
+
+
+    return render_template('chatorg.html',nav="Chat Feedback",users=users, messages=messages, messages_json=json.dumps(messages), users_json=json.dumps(users))
+
+
+genai.configure(api_key="AIzaSyAb4TTvJNOcSeZe4BgwvUrBgUQeAoYvNXI")
+
+
+def geminiGenerate(prompt):
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content(prompt)
+    return response.text
+
+
+@other_bpt.route('/api/moderatorresponse', methods=['POST'])
+def moderatorresponse():
+    data = request.get_json()
+    print(data['moderatorResponse'])
+    customer_chat = CustomerSupport.query.filter_by(supportid=data["customersupportid"]).first()
+    summarize = geminiGenerate(str(customer_chat.conversation_json) + " Summarize this chat")
+    customer_chat.solution=data["moderatorResponse"]
+    org_id = User.query.filter_by(userid=session.get('user_id')).first()
+    if data["moderatorResponse"] not in ["pending","uplift"]:
+        print("working")
+        index_qa_pairs({
+            "question": summarize,
+            "answer": data["moderatorResponse"]
+        }, session.get('org_id') if not org_id else org_id.organization, random.randint(1, 10000))
+    db.session.commit()
+    return jsonify({"status": "success"}), 200

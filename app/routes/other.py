@@ -248,37 +248,54 @@ def check_notifications():
     
 @other_bpt.route('/chat')
 def chat():
-    backend={'feedback': 'nothing new', 'messageId': 'msg_1738526396414_84nsy8dre', 'message': 'Chatbot Query\nthis', 'conversation': [{'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738526351890_jjd28h9jw', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Hello! How can I help you today?', 'messageId': 'msg_1738526355834_5gd181q2e', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'on', 'messageId': 'msg_1738526385624_gxmfhamj7', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'This context does not mention anything about chatbots. So I cannot answer this question from the provided context.', 'messageId': 'msg_1738526389457_tkizdkbuy', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'this', 'messageId': 'msg_1738526392438_c8uqj30jc', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Chatbot Query\nthis', 'messageId': 'msg_1738526396414_84nsy8dre', 'timestamp': '01:29 AM'}]}
+    # backend={'feedback': 'nothing new', 'messageId': 'msg_1738526396414_84nsy8dre', 'message': 'Chatbot Query\nthis', 'conversation': [{'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738526351890_jjd28h9jw', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Hello! How can I help you today?', 'messageId': 'msg_1738526355834_5gd181q2e', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'on', 'messageId': 'msg_1738526385624_gxmfhamj7', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'This context does not mention anything about chatbots. So I cannot answer this question from the provided context.', 'messageId': 'msg_1738526389457_tkizdkbuy', 'timestamp': '01:29 AM'}, {'sender': 'You', 'message': 'this', 'messageId': 'msg_1738526392438_c8uqj30jc', 'timestamp': '01:29 AM'}, {'sender': 'Bot', 'message': 'Chatbot Query\nthis', 'messageId': 'msg_1738526396414_84nsy8dre', 'timestamp': '01:29 AM'}]}
     users = [
     {"id": "1", "name": "User 1", "is_active": True},
     {"id": "2", "name": "User 2", "is_active": False},
     {"id": "3", "name": "User 3", "is_active": False},
     {"id": "4", "name": "User 4", "is_active": True},
     ]
-    messages=backend['conversation']
 
     # messages = {
     #     "1": [
     #         {
     #             "id": "1",
     #             "text": "Hello, how can I help you today?",
-    #             "sender": "customer",
+    #             "sender": "You",
     #             "timestamp": datetime.datetime.now().isoformat(),
     #         },
     #         {
     #             "id": "2",
     #             "text": "I need assistance with my order",
-    #             "sender": "bot",
+    #             "sender": "Bot",
     #             "timestamp": datetime.datetime.now().isoformat(),
     #         },
     #         {
     #             "id": "3",
     #             "text": "The delivery is delayed",
-    #             "sender": "customer",
+    #             "sender": "You",
     #             "feedback": "Issue requires escalation",
     #             "timestamp": datetime.datetime.now().isoformat(),
     #         },
     #     ]
     # }
+
+    messages = {
+        "1": [
+             {
+                "id": "1",
+                "message": "Hello, how can I help you today?",
+                "sender": "You",
+                "timestamp": datetime.datetime.now().isoformat(),
+            },
+            {
+                'sender': 'You', 'message': 'hi', 'messageId': 'msg_1738580602618_ckielhetm', 'timestamp': '04:33 PM'
+            }, 
+            {
+                'sender': 'Bot', 'message': "I'm sorry, but I cannot answer your question based on the context you provided. The document focuses on connecting to the internet and does not mention anything about a chatbot.", 'messageId': 'msg_1738580610469_7v1jgepuf', 'timestamp': '04:33 PM'
+            }, 
+            {
+                'sender': 'You', 'message': 'hello', 'messageId': 'msg_1738580618267_osh96mahf', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': "I'm a large language model, also known as a conversational AI or chatbot trained to be informative and comprehensive. I'm trained on a massive amount of text data, and I'm able to communicate and generate human-like text in response to a wide range of prompts and questions. For example, I can provide summaries of factual topics or create stories.\n\nHow can I help you today?", 'messageId': 'msg_1738580622952_j8yhtl9at', 'timestamp': '04:33 PM', 'feedback': 'what is this'}, {'sender': 'You', 'message': 'what can you do', 'messageId': 'msg_1738580634384_g6zn2gwpr', 'timestamp': '04:33 PM'}, {'sender': 'Bot', 'message': 'I am a helpful and accurate AI assistant. I can answer your questions about the iMac G5 computer, including its features and capabilities. I can also provide information on troubleshooting, installing additional components, and connecting to the internet.', 'messageId': 'msg_1738580639605_fgs272q7q', 'timestamp': '04:33 PM'}]}
     
-    return render_template('chat.html',nav="1",users=users, messages=messages,backend=backend, messages_json=json.dumps(messages), users_json=json.dumps(users))
+
+    return render_template('chat.html',nav="1",users=users, messages=messages, messages_json=json.dumps(messages), users_json=json.dumps(users))

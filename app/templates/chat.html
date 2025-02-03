@@ -29,26 +29,24 @@
             <div class="flex-1 flex flex-col h-full">
                 <div class="border-b border-gray-200 p-4">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-700" id="selectedUserName">
-                            {{ users[0].name }}
-                        </h2>
+                        <h2 class="text-lg font-semibold text-gray-700" id="selectedUserName">{{ users[0].name }}</h2>
                         <span class="w-3 h-3 bg-green-400 rounded-full"></span>
                     </div>
                 </div>
                 
                 <div class="flex-1 overflow-y-auto p-4" id="chatMessages">
-                    
                     {% for message in messages %}
-                    <div class="flex {% if message.sender == 'Bot' %}justify-start{% else %}justify-end{% endif %} mb-4">
+                    
+                    <div class="flex {% if message.sender == 'bot' %}justify-end{% else %}justify-start{% endif %} mb-4">
                         <div class="max-w-[70%] {% if message.sender == 'Bot' %}order-1{% else %}order-2{% endif %}">
-                            <div class="rounded-lg p-4 {% if message.messageId== backend.messageId%}bg-red-100 text-red-900{% elif message.sender == 'Bot' %}bg-blue-100 text-blue-900 {% else %}bg-gray-100 text-gray-900{% endif %}">
+                            <div class="rounded-lg p-4 {% if message.feedback %}bg-red-100 text-red-900{% elif message.sender == 'Bot' %}bg-blue-100 text-blue-900{% else %}bg-gray-100 text-gray-900{% endif %}">
                                 <div class="flex items-start gap-2">
                                     <i data-lucide="message-square" class="w-5 h-5 mt-1"></i>
                                     <div>
                                         <p class="text-sm">{{ message.message }}</p>
-                                        {% if message.messageId== backend.messageId %}
+                                        {% if message.feedback %}
                                         <div class="mt-2 p-2 bg-white rounded text-sm text-gray-700">
-                                            Feedback: {{ backend.feedback }}
+                                            Feedback: {{ message.feedback }}
                                         </div>
                                         {% endif %}
                                     </div>
@@ -68,99 +66,75 @@
 {% endblock %}
 
 {% block scripts %}
-
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
-    // Initial data
-    const initialMessages = {{ messages_json|safe }};
-    const users = {{ users_json|safe }};
+// Initial data
+const initialMessages = {{ messages_json|safe }};
+const users = {{ users_json|safe }};
 
-    // DOM elements
-    const userList = document.getElementById('userList');
-    const chatMessages = document.getElementById('chatMessages');
-    const selectedUserName = document.getElementById('selectedUserName');
+// DOM elements
+const userList = document.getElementById('userList');
+const chatMessages = document.getElementById('chatMessages');
+const selectedUserName = document.getElementById('selectedUserName');
 
-    // Current state
-    let selectedUserId = users[0]?.id;
+// Current state
+let selectedUserId = users[0].id;
 
-    // Update chat messages
-    function updateChatMessages(userId) {
-        if (!userId || !initialMessages) return;
-        
-        const messages = initialMessages[userId] || [];
-        chatMessages.innerHTML = messages.map(message => `
-            <div class="flex ${message.sender === 'bot' ? 'justify-end' : 'justify-start'} mb-4">
-                <div class="max-w-[70%] ${message.sender === 'bot' ? 'order-1' : 'order-2'}">
-                    <div class="rounded-lg p-4 ${
-                        message.sender === 'bot' ? 'bg-blue-100 text-blue-900' : 
-                        message.feedback ? 'bg-red-100 text-red-900' : 'bg-gray-100 text-gray-900'
-                    }">
-                        <div class="flex items-start gap-2">
-                            <i data-lucide="message-square" class="w-5 h-5 mt-1"></i>
-                            <div>
-                                <p class="text-sm">${escapeHtml(message.text)}</p>
-                                ${message.feedback ? `
-                                    <div class="mt-2 p-2 bg-white rounded text-sm text-gray-700">
-                                        Feedback: ${escapeHtml(message.feedback)}
-                                    </div>
-                                ` : ''}
-                            </div>
+// Update chat messages
+function updateChatMessages(userId) {
+    const messages = initialMessages[userId] || [];
+    chatMessages.innerHTML = messages.map(message => `
+        <div class="flex ${message.sender === 'Bot' ? 'justify-start' : 'justify-end'} mb-4">
+            <div class="max-w-[70%] ${message.sender === 'Bot' ? 'order-1' : 'order-2'}">
+                <div class="rounded-lg p-4 ${
+                    message.feedback ? 'bg-red-100 text-red-900' : 
+                    message.sender === 'Bot' ? 'bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'
+                }">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="message-square" class="w-5 h-5 mt-1"></i>
+                        <div>
+                            <p class="text-sm">${message.message}</p>
+                            ${message.feedback ? `
+                                <div class="mt-2 p-2 bg-white rounded text-sm text-gray-700">
+                                    Feedback: ${message.feedback}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
-                    <div class="text-xs text-gray-500 mt-1 ${message.sender === 'bot' ? 'text-right' : 'text-left'}">
-                        ${new Date(message.timestamp).toLocaleTimeString()}
-                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1 ${message.sender === 'Bot' ? 'text-left' : 'text-right'}">
+                    ${message.timestamp}
                 </div>
             </div>
-        `).join('');
-        
-        // Ensure icons are created after DOM update
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-        
-        // Scroll to bottom of messages
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+        </div>
+    `).join('');
+    lucide.createIcons();
+}
 
-    // Escape HTML to prevent XSS
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+// Handle user selection with event delegation
+document.addEventListener('click', function(e) {
+    const userBtn = e.target.closest('.user-btn');
+    if (!userBtn) return;
 
-    // Handle user selection with event delegation
-    document.addEventListener('click', function(e) {
-        const userBtn = e.target.closest('.user-btn');
-        if (!userBtn) return;
+    // Update selected user
+    selectedUserId = userBtn.dataset.userId;
+    const user = users.find(u => u.id === selectedUserId);
+    if (!user) return;
+    
+    selectedUserName.textContent = user.name;
 
-        // Update selected user
-        selectedUserId = userBtn.dataset.userId;
-        const user = users.find(u => u.id === selectedUserId);
-        if (!user) return;
-        
-        selectedUserName.textContent = user.name;
-
-        // Update UI
-        document.querySelectorAll('.user-btn').forEach(btn => {
-            btn.classList.remove('bg-blue-100', 'text-blue-800');
-            btn.classList.add('hover:bg-gray-100', 'text-gray-700');
-        });
-        userBtn.classList.remove('hover:bg-gray-100', 'text-gray-700');
-        userBtn.classList.add('bg-blue-100', 'text-blue-800');
-
-        // Update messages
-        updateChatMessages(selectedUserId);
+    // Update UI
+    document.querySelectorAll('.user-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-100', 'text-blue-800');
+        btn.classList.add('hover:bg-gray-100', 'text-gray-700');
     });
+    userBtn.classList.remove('hover:bg-gray-100', 'text-gray-700');
+    userBtn.classList.add('bg-blue-100', 'text-blue-800');
 
-    // Initialize messages for first user
+    // Update messages
     updateChatMessages(selectedUserId);
 });
+
+// Initialize messages for first user
+updateChatMessages(selectedUserId);
 </script>
 {% endblock %}

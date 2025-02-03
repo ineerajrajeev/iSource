@@ -403,6 +403,7 @@ def chatbot():
         data = request.get_json()
         conversation = data.get('conversation', [])
         print(data)
+        
         if not conversation:
             return jsonify({"error": "No conversation provided"}), 400
 
@@ -451,8 +452,17 @@ def feedback():
     try:
         data = request.get_json()
         print(data)
+        list=[]
+        messages={}
+        for i in data['conversation']:
+            if i['messageId']==data['messageId']:
+                i['feedback']=data['feedback']
+            list.append(i)
+        user=session.get('user_id')
+        messages[user]=list
         response = data.get('response')
         feedback = data.get('feedback')
+        print(messages)
 
         if not response or not feedback:
             return jsonify({"error": "Missing response or feedback"}), 400

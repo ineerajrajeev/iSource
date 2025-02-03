@@ -105,6 +105,7 @@ The RAG component is a critical element that fetches and synthesizes data to gen
 For scenarios requiring a balance between external API calls and local computation, the Hybrid RAG flow is utilized:
 
 ![Hybrid RAG Flow Diagram](docs/images/hybrid-rag-flow-diagram.png)
+![hybridrag](https://github.com/user-attachments/assets/2d9ee6a2-7df1-4607-8863-027ef3ceaa8c)
 
 **Description:**
 

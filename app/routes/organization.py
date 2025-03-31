@@ -61,6 +61,9 @@ def organization_dashboard():
 
     pdf_files = Docs.query.filter_by(orgid=session['org_id']).all()
     pdf_files_serialized = [doc.serializer() for doc in pdf_files]
+    for i in pdf_files_serialized:
+        i['docpath'] = i['docpath'].split('/')[-1]
+    print(pdf_files_serialized)
     all_invites = []
 
     # top 5 user having role user and moderator

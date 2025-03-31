@@ -26,10 +26,12 @@ import os
 
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_MODEL = os.getenv("GOOGLE_MODEL")
 
 # Gemini LLM initialization
 gemini_llm = ChatGoogleGenerativeAI(
-    model="gemini-pro",            # or 'gemini-1.5-flash' etc.
+    # model="gemini-pro",            # or 'gemini-1.5-flash' etc.
+    model=GOOGLE_MODEL,            # or 'gemini-1.5-flash' etc.
     google_api_key=GOOGLE_API_KEY
 )
 
@@ -442,6 +444,8 @@ def chatbot():
     except Exception as e:
         print(f"Error in chatbot API: {e}")
         return jsonify({"error": "An error occurred while processing the message"}), 500
+    
+
 
 @QA_bpt.route('/api/feedback', methods=['POST'])
 def feedback():

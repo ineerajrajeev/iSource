@@ -29,6 +29,7 @@ def moderator_dashboard():
     data_summary['total_invites']=len(Invites.query.filter_by(orgid=User.query.filter_by(userid = session.get('user_id')).first().organization).all())
 
     print(len(questions_marked_official))
+    print(questions_marked_official)
 
 
     return render_template('ModeratorDashboard.html', questions=questions,data_summary=data_summary,official=questions_marked_official,unofficial=question_notmarked_official,nav="Moderator Dashboard")

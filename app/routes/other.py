@@ -319,3 +319,7 @@ def moderatorresponse():
         }, session.get('org_id') if not org_id else org_id.organization, random.randint(1, 10000))
     db.session.commit()
     return jsonify({"status": "success"}), 200
+
+@other_bpt.route('/api/voice_assistant', methods=['GET'])
+def voice_assistant():
+    return render_template('voice_assistant.html',nav="Voice Assistant")

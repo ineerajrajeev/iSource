@@ -265,7 +265,7 @@
           <div class="flex items-center justify-between mb-2">
             <h3 class="font-semibold">{{ question.question_title }}</h3>
           </div>
-          <p class="text-sm text-gray-500">Asked by {{ question.email }} {{ question.relative_time }} ago</p>
+          <p class="text-sm text-gray-500">Asked by {{ question.email }} {{ question.relative_time }} </p>
         </div>
         {% endfor %}
       </div>
@@ -312,7 +312,7 @@
               <span class="font-medium text-lg">PDF</span>
             </div>
             <span class="truncate mt-3 text-gray-800 text-sm font-medium">{{ pdf.docname }}</span>
-            <a href="{{ pdf.docpath }}" target="_blank" class="text-blue-600 hover:underline mt-2 text-sm">View</a>
+            <a href="/uploads/{{ pdf.docpath }}" target="_blank" class="text-blue-600 hover:underline mt-2 text-sm">View</a>
           </div>
           {% endfor %}
         {% else %}

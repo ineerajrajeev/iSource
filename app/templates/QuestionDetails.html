@@ -387,7 +387,7 @@ endblock %} {% block style %}
     </div>
   </div>
 </div>
-{% endblock %} {% block script %}
+{% endblock %} {% block scripts %}
 <script>
   /*
   document.addEventListener("DOMContentLoaded", () => {
@@ -475,7 +475,11 @@ endblock %} {% block style %}
     });
   });
   // Answer Upvote and Downvote Handling
+  function demo(){
+    console.log("hi");
+  }
   function upvoteAnswer(answerId) {
+    console.log("hi");
     fetch(`/upvoteans/${answerId}`, {
       method: "POST",
       headers: {

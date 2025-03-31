@@ -15,9 +15,10 @@ def send_email(to_email, subject, html_content,attachment=None):
     smtp_port = 587  # Gmail SMTP port
 
     # Sender's Gmail address and password
-    sender_email = 'neerajshetkar@gmail.com' #enter your email
-    sender_password = 'sqds cgya rtlq ihxq' #enter code > you can get it at https://myaccount.google.com/apppasswords or search for "app password" in google account > create a new app code > format "wxyz wxyz wxyz wxyz" > enter it here
-
+    # sender_email = 'neerajshetkar@gmail.com' #enter your email
+    sender_email = 'jeevanchoudhary2421@gmail.com'
+    # sender_password = 'sqds cgya rtlq ihxq' #enter code > you can get it at https://myaccount.google.com/apppasswords or search for "app password" in google account > create a new app code > format "wxyz wxyz wxyz wxyz" > enter it here
+    sender_password = 'jkon ogav rpkg ygpi'
     # Create a MIME multipart message
     msg = MIMEMultipart()
     msg['From'] = sender_email

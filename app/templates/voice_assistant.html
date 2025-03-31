@@ -1,0 +1,291 @@
+{% extends "layout.html" %}
+{%block title %}
+Ai Voice Assistant
+{%endblock %}
+
+{% block content %}
+<div class="bg-black">
+<div class="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4">
+  <!-- Background Effects -->
+  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')] bg-cover bg-center opacity-5"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-black/50"></div>
+  
+  <!-- Floating Particles Container -->
+  <div id="particles" class="absolute inset-0"></div>
+
+  <!-- Main Content -->
+  <div class="relative z-10 flex flex-col items-center max-w-4xl w-full">
+    <!-- Title -->
+    <h1 class="text-5xl font-bold text-white mb-16 text-center tracking-tight">
+      <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+        Voice Assistant
+      </span>
+    </h1>
+
+    <!-- Orb Container -->
+    <div class="relative w-80 h-80 mb-16">
+      <!-- Glow Effect -->
+      <div id="glow" class="absolute inset-0 rounded-full bg-gradient-to-r from-zinc-400/20 to-white/20 blur-3xl transition-transform duration-200"></div>
+
+      <!-- Main Orb -->
+      <div class="absolute inset-0">
+        <div id="orb-outer" class="absolute inset-0 rounded-full bg-gradient-to-r from-zinc-300 to-white blur-lg opacity-50 transition-transform duration-150"></div>
+        <div id="orb-inner" class="absolute inset-0 rounded-full bg-gradient-to-r from-zinc-100 to-white/90 transition-transform duration-100"></div>
+      </div>
+
+      <!-- Ripple Effects -->
+      <div id="ripples" class="hidden">
+        <div class="absolute inset-0 rounded-full bg-white/10 animate-ping" style="animation-delay: 0s"></div>
+        <div class="absolute inset-0 rounded-full bg-white/10 animate-ping" style="animation-delay: 0.2s"></div>
+        <div class="absolute inset-0 rounded-full bg-white/10 animate-ping" style="animation-delay: 0.4s"></div>
+      </div>
+
+      <!-- Mic Button -->
+      <button id="micButton" class="absolute inset-0 flex items-center justify-center group">
+        <div class="relative w-24 h-24">
+          <div class="absolute inset-0 bg-black/20 rounded-full glass-effect flex items-center justify-center group-hover:bg-black/30 transition-colors duration-200">
+            <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" x2="12" y1="19" y2="22"></line>
+            </svg>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Transcript Display -->
+    <div class="max-w-2xl w-full bg-zinc-900/30 glass-effect rounded-3xl p-8 border border-white/10">
+      <div id="waveformContainer" class="hidden justify-center mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white/70 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 10v3"></path>
+          <path d="M6 6v11"></path>
+          <path d="M10 3v18"></path>
+          <path d="M14 8v7"></path>
+          <path d="M18 5v13"></path>
+          <path d="M22 10v3"></path>
+        </svg>
+      </div>
+      <p id="transcript" class="text-white/80 text-center text-xl min-h-[4rem] leading-relaxed font-light">
+        <span class="text-white/40">Click the microphone and start speaking...</span>
+      </p>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="mt-8 flex items-center gap-3 px-6 py-3 rounded-full bg-zinc-900/30 glass-effect border border-white/5">
+      <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-zinc-500"></div>
+      <p id="statusText" class="text-white/60 text-sm font-medium tracking-wide">Microphone off</p>
+    </div>
+  </div>
+</div>
+</div>  
+
+{% endblock %}
+{%block style%}
+<style>
+  @keyframes float {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      transform: translateY(-100vh) scale(0);
+      opacity: 0;
+    }
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+</style>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Initialize particles
+  const particlesContainer = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.animation = `float ${Math.random() * 15 + 10}s linear infinite`;
+    particlesContainer.appendChild(particle);
+  }
+
+  // Voice recognition setup
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let isListening = false;
+  let energy = 0;
+
+   // Add conversation handling functions from chatbot
+   function generateMessageId() {
+    return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  function saveMessage(sender, message, messageId, timestamp) {
+    let conversation = getConversation();
+    conversation.push({ sender, message, messageId, timestamp });
+    localStorage.setItem("conversation", JSON.stringify(conversation));
+  }
+
+  function getConversation() {
+    return JSON.parse(localStorage.getItem("conversation")) || [];
+  }
+
+  // Modified voice recognition handler
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      const current = event.resultIndex;
+      const result = event.results[current];
+      const transcriptText = result[0].transcript;
+      document.getElementById('transcript').innerHTML = transcriptText;
+      energy = Math.random() * 0.5 + 0.5;
+      updateOrbAnimation();
+
+      if (result.isFinal) {
+        const message = transcriptText.trim();
+        if (message) {
+            const messageId = generateMessageId();
+            const timestamp = getCurrentTime();
+            saveMessage("You", message, messageId, timestamp);
+    
+            fetch('/api/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversation: getConversation() })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.reply) {
+                    const botMessageId = generateMessageId();
+                    const botTimestamp = getCurrentTime();
+                    saveMessage("Bot", data.reply, botMessageId, botTimestamp);
+    
+                    // Update UI and speak response
+                    document.getElementById('transcript').innerHTML = data.reply;
+    
+                    // Stop listening before speaking
+                    stopListening();  
+    
+                    // Speak response
+                    const utterance = new SpeechSynthesisUtterance(data.reply);
+                    window.speechSynthesis.speak(utterance);
+    
+                    // Restart listening after speech ends (optional)
+                    utterance.onend = () => {
+                        startListening();  // Remove this line if you don't want auto-restart
+                    };
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    }
+    
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      stopListening();
+    };
+  }
+
+  // UI Elements
+  const micButton = document.getElementById('micButton');
+  const micIcon = document.getElementById('micIcon');
+  const ripples = document.getElementById('ripples');
+  const waveformContainer = document.getElementById('waveformContainer');
+  const transcript = document.getElementById('transcript');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const glow = document.getElementById('glow');
+  const orbOuter = document.getElementById('orb-outer');
+  const orbInner = document.getElementById('orb-inner');
+
+  function updateOrbAnimation() {
+    glow.style.transform = `scale(${1.2 + energy * 0.3})`;
+    orbOuter.style.transform = `scale(${1 + energy * 0.2})`;
+    orbInner.style.transform = `scale(${1 + energy * 0.1})`;
+  }
+
+  function startListening() {
+    if (recognition) {
+      recognition.start();
+      isListening = true;
+      micIcon.innerHTML = `
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" x2="12" y1="19" y2="22"></line>
+      `;
+      micIcon.classList.add('animate-pulse');
+      ripples.classList.remove('hidden');
+      waveformContainer.classList.remove('hidden');
+      waveformContainer.classList.add('flex');
+      transcript.innerHTML = '<span class="text-white/50">I\'m listening...</span>';
+      statusDot.classList.remove('bg-zinc-500');
+      statusDot.classList.add('bg-white', 'animate-pulse');
+      statusText.textContent = 'Listening...';
+    }
+  }
+
+  function stopListening() {
+    if (recognition) {
+      recognition.stop();
+      isListening = false;
+      micIcon.innerHTML = `
+        <path d="M1 1l22 22M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V5a3 3 0 0 0-5.94-.6"></path>
+        <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"></path>
+        <line x1="12" x2="12" y1="19" y2="22"></line>
+      `;
+      micIcon.classList.remove('animate-pulse');
+      ripples.classList.add('hidden');
+      waveformContainer.classList.add('hidden');
+      waveformContainer.classList.remove('flex');
+      transcript.innerHTML = '<span class="text-white/40">Click the microphone and start speaking...</span>';
+      statusDot.classList.remove('bg-white', 'animate-pulse');
+      statusDot.classList.add('bg-zinc-500');
+      statusText.textContent = 'Microphone off';
+      energy = 0;
+      updateOrbAnimation();
+    }
+  }
+
+  micButton.addEventListener('click', () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  });
+
+  // Initial orb state
+  updateOrbAnimation();
+</script>
+{% endblock %}
